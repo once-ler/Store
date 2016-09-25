@@ -61,55 +61,62 @@ namespace Store.Pgsql.Test {
         this.versions = p.getVersionControls();
       };
       it["can get a list of version controls"] = () => versions.should_not_be_null();
-   
-      describe["can create a new version control from master"] = () => {
+      
+      describe["create 1 new version control if there are none"] = () => {
         before = () => {
-          if (this.versions.FirstOrDefault() != null) throw new InvalidOperationException("Already done");          
-        };        
-        it["raise exception if 1 version control already created"] = expect<InvalidOperationException>();
-
-        describe["create 1 new version control if there are none"] = () => {
-          if (this.versions != null && this.versions.Count() == 0) {
-            before = () => {
-              newVc = p.createNewVersionControl(foo_bar_1);
-            };
-            it["new version control should not be null"] = () => newVc.should_not_be_null();
-            it["new version control should have same name as inputted"] = () => newVc.should(d => d.name == foo_bar_1);
-          }
-        };        
+          versions = p.getVersionControls();
+        };
+        act = () => {
+          if (versions.Count() == 0)
+            newVc = p.createNewVersionControl(foo_bar_1);
+          else
+            newVc = versions.FirstOrDefault(d => d.name == foo_bar_1);
+        };
+        it["new version control should not be null"] = () => newVc.should_not_be_null();
+        it["new version control should have same name as inputted"] = () => newVc.should(d => d.name == foo_bar_1);
+        it["version control list has at least one item"] = () => versions.Count().should_be_greater_than(0);        
       };
 
       describe["can create a new version control from an existing version control"] = () => {
         before = () => {
-          if (this.versions.ElementAtOrDefault(1) != null) throw new InvalidOperationException("Already done");
+          versions = p.getVersionControls();
+          newVc = versions.FirstOrDefault(d => d.name == foo_bar_1);
+          newVc2 = versions.FirstOrDefault(d => d.name == foo_bar_2);
         };
-        it["raise exception if 2 version controls already created"] = expect<InvalidOperationException>();
-
-        describe["create new version control from an existing version control"] = () => {
-          if (this.versions != null && this.versions.Count() == 0) {
-            before = () => {
-              newVc2 = p.createNewVersionControlFromExisting(this.versions.ElementAt(1).id, foo_bar_2);
-            };
-            it["new version control created from an existing one should not be null"] = () => newVc2.should_not_be_null();
-            it["new version control created from an existing one should have same name as inputted"] = () => newVc2.should(d => d.name == foo_bar_2);
-          }
+        act = () => {
+          if (newVc2 == null) {            
+            newVc2 = p.createNewVersionControlFromExisting(newVc.id, foo_bar_2);
+          }            
         };
+        it["new version control created from an existing one should not be null"] = () => newVc2.should_not_be_null();
+        it["new version control created from an existing one should have same name as inputted"] = () => newVc2.should(d => d.name == foo_bar_2);
+        it["version control list has at least two item"] = () => versions.Count().should_be_greater_than(1);
       };
-       
+      
     }
 
     private DBContext dbContext;
     private DroidClient<Droid> droidClientA;
     private DroidClient<Droid> droidClientB;
-    private List<VersionControl> versions;
+    private List<VersionControl> versions = new List<VersionControl>();
 
   }
 
   class Index {
     static void Main(string[] args) {
       /**
-       * NSpecRunner.exe C:\cygwin64\home\htao\Store.Pgsql\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll
+       * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll
        */
     }
   }
 }
+
+/*
+  Notes
+  =====
+  before(:all) runs the block one time before all of the examples are run.
+  before(:each) runs the block one time before each of your specs in the file
+
+  before(:all) sets the instance variables @admission, @project, @creative, @contest_entry one time before all of the it blocks are run.
+  However, :before(:each) resets the instance variables in the before block every time an it block is run.
+*/
