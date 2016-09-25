@@ -1,0 +1,16 @@
+/bin
+/obj
+webserver/bin
+webserver/obj
+webserver/Properties
+/node_modules
+webserver/node_modules
+packages/Newtonsoft.Json*
+packages/Npgsql*
+packages/nspec*
+*.suo
+App.config
+app.config
+**/bin
+**/obj
+Test.cs
