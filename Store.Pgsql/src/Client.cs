@@ -34,20 +34,19 @@ namespace Store {
       }
 
       public U save<U>(string version, U doc) where U : class {
-        Record<T> rec = null;
-        Model m = null;
-        if (typeof(U) == typeof(Record<T>)) {
-          rec = doc as Record<T>;
-        } else {
-          m = doc as Model;
-          rec = this.getOneRecord<Record<T>>(version, "id", m.id);
-        }
+        // Always fetch current record from storage
+        var id = typeof(U) == typeof(T) ? (doc as Model).id : ((doc as Record<T>).current as Model).id;
+        var destRec = one<Record<T>>(version, "id", id);
+        var src = typeof(U) == typeof(T) ? doc as T : ((doc as Record<T>).current as T);
+
+        var o = merge(destRec.current, src);
+
         // Deque record into history
-        rec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = rec.current });
+        destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = o });
         // Update store
-        var response = upsertStore(version, rec);
+        var response = upsertStore(version, destRec);
         if (response != OperatonResult.Succeeded.ToString("F")) throw new Exception(response);
-        return rec as U;
+        return typeof(U) == typeof(T) ? destRec.current as U : destRec as U;
       }
 
       public Record<T> replaceFromHistory(string version, string recordId, string historyId) {
@@ -145,10 +144,10 @@ namespace Store {
         var d = results.FirstOrDefault();
         if (d == null) return null;
         var rec = this.makeRecord(d);
-        if (typeof(U) == typeof(Record<T>)) {
-          return rec;
+        if (typeof(U) == typeof(T)) {
+          return rec.current;
         }
-        return rec.current;
+        return rec;
       }
 
     }
