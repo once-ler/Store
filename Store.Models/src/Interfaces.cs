@@ -85,6 +85,16 @@ namespace Store {
       /// <returns>One record of IModel.</returns>
       Record<T> makeRecord(string jsonString);
 
+      // <summary>
+      /// Create a new IModel by combining an existing IModel with another IModel.
+      /// The source IModel may only contain a subset of attributes.
+      /// If the attributes do not appear in the source, naturally the destination IModel will keep the existing values for those missing attributes.
+      /// </summary>
+      /// <param name="dest">The IModel to merge into.</param>
+      /// <param name="source">The IModel that may contain only subset of attributes.</param>
+      /// <returns>A new IModel with any updated attribute values from the source.</returns>
+      T merge(T dest, T source);
+
       /// <summary>
       /// Fetch one Record{IModel} record with the provided key/value for a VersionControl.
       /// Typically, this statically typed object will be serialized as a JSON object and sent to a client in a web application. 
