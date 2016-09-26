@@ -39,8 +39,12 @@ namespace Store {
         var destRec = one<Record<T>>(version, "id", id);
         var src = typeof(U) == typeof(T) ? doc as T : ((doc as Record<T>).current as T);
 
-        var o = merge(destRec.current, src);
+        T o = merge(destRec.current, src);
+        (o as Model).ts = DateTime.Now;
 
+        // Current is not merged
+        destRec.current = o;
+        destRec.ts = DateTime.Now;
         // Deque record into history
         destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = o });
         // Update store
@@ -50,7 +54,7 @@ namespace Store {
       }
 
       public Record<T> replaceFromHistory(string version, string recordId, string historyId) {
-        var rec = this.getOneRecord<Record<T>>(version, "id", recordId);
+        var rec = getOneRecord<Record<T>>(version, "id", recordId);
         if (rec == null) throw new Exception("Record id: " + recordId + " not found.");
 
         // Select from history

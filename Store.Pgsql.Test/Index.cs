@@ -26,6 +26,12 @@ namespace Store.Pgsql.Test {
       ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(this.dbContext));
       ServiceProvider.Instance.Singleton<RebelAllianceClient<RebelAlliance>>(() => new RebelAllianceClient<RebelAlliance>(this.dbContext));
       ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(this.dbContext));
+
+      personnel = null;
+      recordOfPersonnel = null;
+      personnelClient = null;
+      newVc = null;
+      newVc2 = null;
     }
 
     void describe_ioc_service_provider() {
@@ -141,7 +147,7 @@ namespace Store.Pgsql.Test {
         it["returned type should be a Record of type Personnel"] = () => recordOfPersonnel.should(d => d.GetType() == typeof(Record<Personnel>));
       };
 
-      describe["can save a one type of Personnel"] = () => {
+      describe["can save one type of Personnel"] = () => {
         before = () => {
           var p = ServiceProvider.Instance.GetService<IVersionControlManager>();
           versions = p.getVersionControls();
@@ -156,7 +162,7 @@ namespace Store.Pgsql.Test {
         it["saved result returned type should be of type Personnel"] = () => personnel.should(d => d.GetType() == typeof(Personnel));
       };
 
-      describe["can save a one Record type of Personnel"] = () => {
+      describe["can save one Record type of Personnel"] = () => {
         before = () => {
           var p = ServiceProvider.Instance.GetService<IVersionControlManager>();
           versions = p.getVersionControls();
