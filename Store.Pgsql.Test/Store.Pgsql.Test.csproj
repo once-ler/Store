@@ -47,10 +47,10 @@
       <HintPath>..\packages\nspec.1.0.7\lib\NSpec.dll</HintPath>
     </Reference>
     <Reference Include="Store.Models">
-      <HintPath>..\bin\Debug\Store.Models.dll</HintPath>
+      <HintPath>..\Store.Pgsql\bin\Debug\Store.Models.dll</HintPath>
     </Reference>
     <Reference Include="Store.Pgsql">
-      <HintPath>..\bin\Debug\Store.Pgsql.dll</HintPath>
+      <HintPath>..\Store.Pgsql\bin\Debug\Store.Pgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

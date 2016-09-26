@@ -9,8 +9,6 @@ packages/Newtonsoft.Json*
 packages/Npgsql*
 packages/nspec*
 *.suo
-App.config
-app.config
 **/bin
 **/obj
 Test.cs
