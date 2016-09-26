@@ -93,6 +93,13 @@ namespace Store {
         return makeRecord(JObject.Parse(jsonString));
       }
 
+      public T merge(T dest, T source) {
+        var destObj = JObject.FromObject(dest);
+        var srcObj = JObject.FromObject(source);
+        destObj.Merge(srcObj);
+        return destObj.ToObject<T>();
+      }
+
       /*
         * Protected properties 
         */
