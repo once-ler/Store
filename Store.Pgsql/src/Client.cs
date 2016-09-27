@@ -85,9 +85,9 @@ namespace Store {
         T bk = o.ToObject<T>();
         // history
         JArray arr = JArray.Parse(d.history);
-        var versioncontrols = arr.ToObject<List<History<T>>>();
+        var hist = arr.ToObject<List<History<T>>>();
         // record
-        Record<T> rec = new Record<T> { id = d.id, current = bk, history = versioncontrols };
+        Record<T> rec = new Record<T> { id = d.id, current = bk, history = hist };
 
         return rec;
       }
