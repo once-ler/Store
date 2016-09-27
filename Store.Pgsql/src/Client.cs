@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Store.Interfaces;
 using Store.Models;
+using Store.IoC;
 
 namespace Store {
   namespace Pgsql {
@@ -33,12 +35,30 @@ namespace Store {
         return rec as U;
       }
 
-      public U save<U>(string version, U doc) where U : class {
-        // Always fetch current record from storage
-        var id = typeof(U) == typeof(T) ? (doc as Model).id : ((doc as Record<T>).current as Model).id;
-        var destRec = one<Record<T>>(version, "id", id);
-        var src = typeof(U) == typeof(T) ? doc as T : ((doc as Record<T>).current as T);
+      public dynamic one(string version, string typeOfStore, string field, string value) {
+        var rec = getOneRecord(version, typeOfStore, field, value);
+        if (rec == null) throw new Exception("IModel for field: " + field + " and value: " + value + " not found.");
+        return rec;
+      }
 
+      public U save<U>(string version, U doc) where U : class {
+        var id = typeof(U) == typeof(T) ? (doc as Model).id : ((doc as Record<T>).current as Model).id;
+        
+        // Always fetch current record from storage
+        Record<T> destRec = null;
+        try {
+          destRec = one<Record<T>>(version, "id", id);
+        } catch (Exception e) {
+          destRec = new Record<T>();
+        }
+
+        // Try to re-populate all properties of attributes that are types.
+        // In this scenario, the incoming doc may only contain the "id" attribute and nothing else.
+        // If we plainly use the incoming objects for those attributes, the parent document will be missing those properties that belong to those classes.
+        var src = typeof(U) == typeof(T) ? doc as T : ((doc as Record<T>).current as T);
+        recursePopulate(version, src); // Should it be from "master" or version when repopulating?
+
+        // Merge the incoming source doc to the incumbent doc.
         T o = merge(destRec.current, src);
         (o as Model).ts = DateTime.Now;
 
@@ -152,6 +172,42 @@ namespace Store {
           return rec.current;
         }
         return rec;
+      }
+
+      protected dynamic getOneRecord(string version, string typeOfStore, string field, string value) {
+        var store = typeOfStore.ToLower();
+        var runner = new CommandRunner(this.dbContext);
+        var sql = string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, store, field, value });
+        var results = runner.ExecuteDynamic(sql, null);
+        var d = results.FirstOrDefault();
+        if (d == null) return null;
+        JObject o = JObject.Parse(d.current);
+        var ty = ServiceProvider.Instance.GetType(typeOfStore);
+        var a = o.ToObject(ty);
+        return a;
+      }
+
+      protected void recursePopulate(string version, object doc) {
+        var props = doc.GetType().GetProperties();
+
+        foreach (var prop in props) {
+          var value = prop.GetValue(doc, null);
+
+          if (prop.PropertyType.BaseType == typeof(Model)) {
+            dynamic svc = ServiceProvider.Instance.GetStore(prop.PropertyType.Name);
+            object o = null;
+            try { o = svc.one(version, prop.PropertyType.Name, "id", (value as Model).id); } 
+            catch (Exception e) { }
+
+            if (o != null) doc.GetType().GetProperty(prop.Name).SetValue(doc, o, null);
+            if (value != null) recursePopulate(version, value);
+          }
+          if (value is IList && value.GetType().IsGenericType) {
+            foreach (var item in value as IList) {
+              recursePopulate(version, item);
+            }
+          }
+        }
       }
 
     }
