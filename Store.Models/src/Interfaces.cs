@@ -107,6 +107,16 @@ namespace Store {
       U one<U>(string version, string field, string value) where U : class;
 
       /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="typeOfStore"></param>
+      /// <param name="field"></param>
+      /// <param name="value"></param>
+      /// <returns></returns>
+      object one(string version, string typeOfStore, string field, string value);
+
+      /// <summary>
       /// The user elects to replace the current record with one found in the history collection.
       /// This is possible because we save a copy of IModel each time a user saves changes.
       /// </summary>
