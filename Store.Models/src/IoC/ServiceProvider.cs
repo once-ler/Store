@@ -3,6 +3,8 @@
 namespace Store.IoC {
   public interface IServiceProvider {
     T GetService<T>();
+    object GetStore(string typeOfStore);
+    Type GetType(string typeName);
     void Register<T>();
     void Register<T>(Func<T> instanceCreator);
     void Singleton<T>(T instance);
@@ -98,6 +100,26 @@ namespace Store.IoC {
       lock (locker) {
         container.Singleton<T>(instanceCreator);
       }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeOfStore"></param>
+    /// <returns></returns>
+    public object GetStore(string typeOfStore) {
+      var ty = container.GetStore(typeOfStore);
+      if (ty != null) return container.Get(ty as Type);
+      return null;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <returns></returns>
+    public Type GetType(string typeName) {
+      return container.GetType(typeName);
     }
   }  
 }

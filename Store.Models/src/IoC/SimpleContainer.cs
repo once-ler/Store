@@ -7,6 +7,8 @@ namespace Store.IoC {
   public interface ISimpleContainer : IDisposable {
     object Get(Type serviceType);
     T Get<T>();
+    object GetStore(string typeOfStore);
+    Type GetType(string typeName);
     void Register<TService>();
     void Register<TService>(Func<TService> instanceCreator);
     void Register<TService, TImpl>() where TImpl : TService;
@@ -19,6 +21,7 @@ namespace Store.IoC {
   /// </summary>
   public class SimpleContainer : ISimpleContainer {
     private readonly Dictionary<Type, Func<object>> _registrations = new Dictionary<Type, Func<object>>();
+    private readonly Dictionary<string, Func<Type>> _registrationsByName = new Dictionary<string, Func<Type>>();
 
     public void Register<TService>() {
       Register<TService, TService>();
@@ -91,6 +94,59 @@ namespace Store.IoC {
       throw new InvalidOperationException("No registration for " + serviceType);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeOfStore"></param>
+    /// <returns></returns>
+    public object GetStore(string typeOfStore) {
+      IList<Type> typesToRegister = new List<Type>();
+
+      var a = _registrations.Where(d => {
+        var ty = d.Key;
+        var innerType = ty.IsGenericType;
+        if (innerType == true) {
+          var b = ty.GetGenericArguments().FirstOrDefault();
+          if (b != null && typeOfStore == b.Name) {
+            typesToRegister.Add(b);
+            return true;
+          }
+        }
+        return false;
+      }).ToList();
+
+      // Register the type internally
+      foreach (var b in typesToRegister) {
+        Func<object> f;
+        _registrations.TryGetValue(b, out f);
+        if (f == null) _registrations.Add(b, () => b);
+        Func<Type> f1;
+        _registrationsByName.TryGetValue(b.Name, out f1);
+        if (f1 == null) _registrationsByName.Add(b.Name, () => b);
+      }
+
+      if (a.Count() > 0) return a.FirstOrDefault().Key;
+
+      return null;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <returns></returns>
+    public Type GetType(string typeName) {
+      Func<Type> f;
+      _registrationsByName.TryGetValue(typeName, out f);
+      if (f != null) {
+        return f();
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public void Dispose() {
       _registrations.Clear();
     }
