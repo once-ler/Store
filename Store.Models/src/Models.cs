@@ -43,6 +43,9 @@ namespace Store {
     /// </summary>
     /// <typeparam name="T">Typically, a Class that derives from Model.</typeparam>
     public class Record<T> : Model {
+      public Record() {
+        history = new List<History<T>>();
+      }
       public T current { get; set; }
       public List<History<T>> history { get; set; }
     }
@@ -65,6 +68,9 @@ namespace Store {
     /// Affiliation is what it says.
     /// </summary>
     public class Affiliation<T> : Model where T : Participant {
+      public Affiliation() {
+        roster = new List<T>();
+      }
       public List<T> roster { get; set; }
     }
   }  

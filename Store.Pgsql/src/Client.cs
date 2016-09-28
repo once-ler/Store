@@ -66,7 +66,7 @@ namespace Store {
         destRec.current = o;
         destRec.ts = DateTime.Now;
         // Deque record into history
-        destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, name = name, source = o });
+        destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = o });
         // Update store
         var response = upsertStore(version, destRec);
         if (response != OperatonResult.Succeeded.ToString("F")) throw new Exception(response);
@@ -121,6 +121,38 @@ namespace Store {
         var srcObj = JObject.FromObject(source);
         destObj.Merge(srcObj);
         return destObj.ToObject<T>();
+      }
+
+      public Record<Affiliation<U>> associate<U, M>(string version, string recordId, string partyId) where U : Participant, new() where M : Model {
+        if (typeof(T).BaseType != typeof(Affiliation<U>)) throw new NotImplementedException("A type not derived from Affiliation currently does not implement associate().");
+
+        var rec = one<Record<T>>(version, "id", recordId);
+        if (rec == null) throw new KeyNotFoundException("Record id: " + recordId + " not found.");
+
+        var party = one<Record<M>>(version, "id", partyId);
+        if (party == null) throw new KeyNotFoundException("party id: " + partyId + " not found.");
+
+        var program = rec.current as Affiliation<U>;
+        var leaderExist = program.roster.FirstOrDefault(d => d.party.id == partyId);
+        if (leaderExist == null) {
+          // Derived Participant can have custom attributes like effectiveDate a d isLeadership
+          U u = new U();
+          u.party = party.current;
+          program.roster.Add(u);
+        }
+        return save(version, rec) as Record<Affiliation<U>>;
+      }
+
+      public Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant  {
+        if (typeof(T).BaseType != typeof(Affiliation<U>)) throw new NotImplementedException("A type not derived from Affiliation currently does not implement disassociate().");
+        
+        var rec = one<Record<T>>(version, "id", recordId);
+        if (rec == null) throw new KeyNotFoundException("Record id: " + recordId + " not found.");
+
+        var program = rec.current as Affiliation<U>;
+        var removedMember = program.roster.Where(d => d.party.id != partyId);
+        program.roster = removedMember.ToList();
+        return save(version, rec) as Record<Affiliation<U>>;
       }
 
       /*

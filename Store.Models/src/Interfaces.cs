@@ -157,22 +157,28 @@ namespace Store {
       List<Record<T>> search(string version, string field, string search);
 
       /// <summary>
-      /// 
+      /// Associates a Model to an Affiliation object.
+      /// The method does not add the Model directly.  The Model must be wrapped as the "party" attribute of a Participant type.
+      /// The Participant type is then added to the "roster" attribute of the Affiliation.
+      /// The Participant type of the Affiliation may be derived so that one can create additional attributes like "isLeader", and so forth.
       /// </summary>
-      /// <param name="version"></param>
-      /// <param name="recordId"></param>
-      /// <param name="participantId"></param>
+      /// <typeparam name="U">Participant or derived Participant with additional fields.</typeparam>
+      /// <typeparam name="M">Represents the type of the "party" attribute.</typeparam>
+      /// <param name="version">The VersionControl identifier for this IModel.</param>
+      /// <param name="recordId">The id of the Record type for an Affiliation.  An Affiliation can also be derived.  i.e. RebelAlliance, Empire, TradeFederation, Resistance, etc.</param>
+      /// <param name="partyId">The id that uniquely identifies the Model referenced in the "party" attribute of the Participant.</param>
       /// <returns></returns>
-      Record<Affiliation<Participant>> disassociate(string version, string recordId, string participantId);
+      Record<Affiliation<U>> associate<U, M>(string version, string recordId, string partyId) where U : Participant, new() where M : Model;
 
       /// <summary>
-      /// 
+      /// Disassociates a Model from an Affiliation object.
       /// </summary>
-      /// <param name="version"></param>
-      /// <param name="recordId"></param>
-      /// <param name="participantId"></param>
+      /// <typeparam name="U">Participant or derived Participant with additional fields.</typeparam>
+      /// <param name="version">The VersionControl identifier for this IModel.</param>
+      /// <param name="recordId">The id of the Record type for an Affiliation.  An Affiliation can also be derived.  i.e. RebelAlliance, Empire, TradeFederation, Resistance, etc.</param>
+      /// <param name="partyId">The id that uniquely identifies the Model referenced in the "party" attribute of the Participant.</param>
       /// <returns></returns>
-      Record<Affiliation<Participant>> associate(string version, string recordId, string participantId);
+      Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant;      
     }
     
   }  
