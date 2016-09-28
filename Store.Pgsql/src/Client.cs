@@ -49,7 +49,7 @@ namespace Store {
         try {
           destRec = one<Record<T>>(version, "id", id);
         } catch (Exception e) {
-          destRec = new Record<T>();
+          destRec = new Record<T> { id = id, ts = DateTime.Now };
         }
 
         // Try to re-populate all properties of attributes that are types.
@@ -66,7 +66,7 @@ namespace Store {
         destRec.current = o;
         destRec.ts = DateTime.Now;
         // Deque record into history
-        destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = o });
+        destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, name = name, source = o });
         // Update store
         var response = upsertStore(version, destRec);
         if (response != OperatonResult.Succeeded.ToString("F")) throw new Exception(response);
@@ -183,8 +183,7 @@ namespace Store {
         if (d == null) return null;
         JObject o = JObject.Parse(d.current);
         var ty = ServiceProvider.Instance.GetType(typeOfStore);
-        var a = o.ToObject(ty);
-        return a;
+        return o.ToObject(ty);
       }
 
       protected void recursePopulate(string version, object doc) {

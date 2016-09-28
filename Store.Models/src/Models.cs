@@ -52,10 +52,10 @@ namespace Store {
     /// Think of VersionControl as a "database".
     /// There is one master VersionControl and users can create clones of the master.
     /// </summary>
-    public class VersionControl : Model{ }
+    public class VersionControl : Model { }
 
     /// <summary>
-    /// Member wraps another Model.  The purpose of Member is to timestamp when member was created for an Affiliation.
+    /// Participant wraps another Model.  The purpose of Participant is to timestamp when member was created for an Affiliation.
     /// </summary>
     public class Participant : Model {
       public Model party { get; set; }
@@ -64,7 +64,7 @@ namespace Store {
     /// <summary>
     /// Affiliation is what it says.
     /// </summary>
-    public class Affiliation<T> : Model where T : Model {
+    public class Affiliation<T> : Model where T : Participant {
       public List<T> roster { get; set; }
     }
   }  

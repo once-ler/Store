@@ -154,7 +154,26 @@ namespace Store {
       /// <param name="field">The key field to search.  If nested, use dot notation.</param>
       /// <param name="search">The value for the key field to search.</param>
       /// <returns>Collection of Record<IModel> if successful.  Empty collection if failure.</returns>
-      List<Record<T>> search(string version, string field, string search);      
+      List<Record<T>> search(string version, string field, string search);
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="recordId"></param>
+      /// <param name="participantId"></param>
+      /// <returns></returns>
+      Record<Affiliation<Participant>> disassociate(string version, string recordId, string participantId);
+
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="recordId"></param>
+      /// <param name="participantId"></param>
+      /// <returns></returns>
+      Record<Affiliation<Participant>> associate(string version, string recordId, string participantId);
     }
+    
   }  
 }
