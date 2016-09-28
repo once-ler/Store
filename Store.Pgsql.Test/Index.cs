@@ -176,7 +176,6 @@ namespace Store.Pgsql.Test {
         it["saved record of type Personnel should not be null"] = () => recordOfPersonnel.should_not_be_null();
         it["saved result returned type should be of a Record of type Personnel"] = () => recordOfPersonnel.should(d => d.GetType() == typeof(Record<Personnel>));
       };
-
     }
 
     private DBContext dbContext;
