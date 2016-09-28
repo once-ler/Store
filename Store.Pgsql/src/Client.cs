@@ -62,7 +62,7 @@ namespace Store {
         T o = merge(destRec.current, src);
         (o as Model).ts = DateTime.Now;
 
-        // Current is not merged
+        // Current is now merged
         destRec.current = o;
         destRec.ts = DateTime.Now;
         // Deque record into history
