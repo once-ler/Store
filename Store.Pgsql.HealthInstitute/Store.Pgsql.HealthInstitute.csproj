@@ -54,7 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bootstrapper.cs" />
+    <Compile Include="src\App.cs" />
+    <Compile Include="src\Bootstrapper.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Models.cs" />

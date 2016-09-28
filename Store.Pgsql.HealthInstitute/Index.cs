@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Store.Interfaces;
-using Store.Models;
-using Store.IoC;
-using Store.Pgsql;
+using Store.Pgsql.HealthInstitute;
 
 namespace Store.Pgsql.HealthInstitute {
   class Index {
+    static void Run(Action runner) { runner(); }
+
     static void Main(string[] args) {
+      Run(() => new Bootstrapper(() => new App()));
     }
   }
 }
