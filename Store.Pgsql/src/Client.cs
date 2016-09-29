@@ -13,24 +13,24 @@ namespace Store {
     public class Client<T> : IStore<T> where T : class, IModel {
       
       public Client(DBContext _dbContext) {
-        this.dbContext = string.Format("Server={0};Port={1};Database={2};User Id={3};Password={4};CommandTimeout={5};", _dbContext.server, _dbContext.port, _dbContext.database, _dbContext.userId, _dbContext.password, _dbContext.commandTimeout);
+        dbContext = string.Format("Server={0};Port={1};Database={2};User Id={3};Password={4};CommandTimeout={5};", _dbContext.server, _dbContext.port, _dbContext.database, _dbContext.userId, _dbContext.password, _dbContext.commandTimeout);
       }
 
       public List<Record<T>> list(string version, int offset, int limit) {
         List<Record<T>> list = new List<Record<T>>();
-        var runner = new CommandRunner(this.dbContext);
+        var runner = new CommandRunner(dbContext);
         var sql = string.Format("select * from {0}.{1} order by id desc offset {2} limit {3}", new object[] { version, this.resolveTypeToString<T>(), offset.ToString(), limit.ToString() });
         var results = runner.ExecuteDynamic(sql, null);
 
         foreach (var d in results) {
-          var rec = this.makeRecord(d);
+          var rec = makeRecord(d);
           list.Add(rec);
         }
         return list;
       }
 
       public U one<U>(string version, string field, string value) where U : class {
-        var rec = this.getOneRecord<U>(version, field, value);
+        var rec = getOneRecord<U>(version, field, value);
         if (rec == null) throw new Exception("IModel for field: " + field + " and value: " + value + " not found.");
         return rec as U;
       }
@@ -67,6 +67,8 @@ namespace Store {
         destRec.ts = DateTime.Now;
         // Deque record into history
         destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = o });
+        // Create schema and store if not exist
+        runner(() => createSchema(version), () => createStore(version, resolveTypeToString<T>()));
         // Update store
         var response = upsertStore(version, destRec);
         if (response != OperatonResult.Succeeded.ToString("F")) throw new Exception(response);
@@ -88,12 +90,12 @@ namespace Store {
 
       public List<Record<T>> search(string version, string field, string search) {
         List<Record<T>> list = new List<Record<T>>();
-        var runner = new CommandRunner(this.dbContext);
+        var runner = new CommandRunner(dbContext);
         var sql = string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' limit 10", new object[] { version, this.resolveTypeToString<T>(), field, search });
         var results = runner.ExecuteDynamic(sql, null);
 
         foreach (var d in results) {
-          var rec = this.makeRecord(d);
+          var rec = makeRecord(d);
           list.Add(rec);
         }
         return list;
@@ -156,14 +158,22 @@ namespace Store {
       }
 
       /*
-        * Protected properties 
-        */
-      protected string dbContext = ""; // Properties.Settings.Default.DBContext;
+       * Protected properties 
+       */
+      protected string dbContext = "";
       protected enum OperatonResult { Succeeded = 1, Failed = 0 };
 
       /*
-        * Protected methods
-        */
+       * Protected methods
+       */
+      protected string createSchema(string version) {
+        return runSql(string.Format("select create_schema('{0})'", version));
+      }
+
+      protected string createStore(string version, string store) {
+        return runSql(string.Format("select create_table('{0}', '{1}')", version, store));
+      }
+      
       protected string resolveTypeToString<U>() {
         if (typeof(U) == typeof(Record<T>)) return typeof(T).Name.ToLower();
         return typeof(U).Name.ToLower();
@@ -174,11 +184,11 @@ namespace Store {
         var currentJson = Newtonsoft.Json.JsonConvert.SerializeObject(rec.current);
         var historyJson = Newtonsoft.Json.JsonConvert.SerializeObject(rec.history);
 
-        var runner = new CommandRunner(this.dbContext);
+        var runner = new CommandRunner(dbContext);
         var sql = string.Format("insert into {0}.{1} (id, ts, current, history) values ('{2}', now(), '{3}', '{4}') " +
           "on conflict (id) do update set ts = now(), current = EXCLUDED.current, history = EXCLUDED.history", 
           version, 
-          this.resolveTypeToString<T>(), 
+          resolveTypeToString<T>(), 
           rec.id, 
           currentJson, 
           historyJson
@@ -194,12 +204,12 @@ namespace Store {
       }
 
       protected U getOneRecord<U>(string version, string field, string value) where U : class {
-        var runner = new CommandRunner(this.dbContext);
+        var runner = new CommandRunner(dbContext);
         var sql = string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, this.resolveTypeToString<U>(), field, value });
         var results = runner.ExecuteDynamic(sql, null);
         var d = results.FirstOrDefault();
         if (d == null) return null;
-        var rec = this.makeRecord(d);
+        var rec = makeRecord(d);
         if (typeof(U) == typeof(T)) {
           return rec.current;
         }
@@ -208,7 +218,7 @@ namespace Store {
 
       protected dynamic getOneRecord(string version, string typeOfStore, string field, string value) {
         var store = typeOfStore.ToLower();
-        var runner = new CommandRunner(this.dbContext);
+        var runner = new CommandRunner(dbContext);
         var sql = string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, store, field, value });
         var results = runner.ExecuteDynamic(sql, null);
         var d = results.FirstOrDefault();
@@ -239,6 +249,14 @@ namespace Store {
             }
           }
         }
+      }
+
+      private string runner(params Func<string>[] actions) { List<string> results = new List<string>(); foreach (var act in actions) results.Add(act()); return string.Join(",", results); }
+
+      private string tryCatch(Action act) { try { act(); } catch (Exception e) { return e.Message; } return OperatonResult.Succeeded.ToString("F"); }
+
+      private string runSql(string sql) {
+        return tryCatch(() => { var runner = new CommandRunner(dbContext); runner.Transact(new Npgsql.NpgsqlCommand[] { runner.BuildCommand(sql, null) }); });
       }
 
     }
