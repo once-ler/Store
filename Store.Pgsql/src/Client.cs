@@ -171,7 +171,10 @@ namespace Store {
       }
 
       protected string createStore(string version, string store) {
-        return runSql(string.Format("select create_table('{0}', '{1}')", version, store));
+        return runner(
+          () => runSql(string.Format("select create_table('{0}', '{1}')", version, store)),
+          () => runSql(string.Format("insert into public.versioncontrol(id, name) values('{0}', '{1}') on conflict(id) DO UPDATE SET ts = now(), name = EXCLUDED.name", version, store))
+        );
       }
       
       protected string resolveTypeToString<U>() {
