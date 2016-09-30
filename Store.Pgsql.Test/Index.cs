@@ -78,9 +78,9 @@ namespace Store.Pgsql.Test {
       };
       it["can get a list of version controls"] = () => versions.should_not_be_null();
       
-      describe["create 1 new version control if there are none"] = () => {
+      describe["create foo bar 1 version control if there are none"] = () => {
         before = () => {
-          versions = p.getVersionControls();
+          versions = p.getVersionControls().Where(d => d.name == foo_bar_1).ToList();
         };
         act = () => {
           if (versions.Count() == 0)
@@ -219,10 +219,20 @@ namespace Store.Pgsql.Test {
   class Index {
     static void Main(string[] args) {
       /*
+      string foo_bar_1 = "foo bar 1";
+
       var dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
       ServiceProvider.Instance.Singleton<Client<Personnel>>(() => new Client<Personnel>(dbContext));
       var pclient = ServiceProvider.Instance.GetService<Client<Personnel>>();
-      pclient.save("v$12345678", new Personnel { id = "0", name = "abc123", ts = DateTime.Now });
+      // pclient.save("v$12345678", new Personnel { id = "0", name = "abc123", ts = DateTime.Now });
+      // var p = pclient.one<Personnel>("v$0", "id", "taoh02");
+      // var l = pclient.list("v$0", 0, 10);
+
+      ServiceProvider.Instance.Singleton<VersionControlManager>(() => new VersionControlManager(dbContext));
+      var vc = ServiceProvider.Instance.GetService<VersionControlManager>();
+      var vcs = vc.getVersionControls();
+      var vcs1 = vc.getVersionControls().Where(d => d.name == foo_bar_1).ToList();
+      // vc.createNewVersionControl(foo_bar_1);
       */
 
       /**
