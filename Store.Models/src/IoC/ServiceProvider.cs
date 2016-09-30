@@ -5,6 +5,7 @@ namespace Store.IoC {
     T GetService<T>();
     object GetStore(string typeOfStore);
     Type GetType(string typeName);
+    void Register(string typeName, Type type);
     void Register<T>();
     void Register<T>(Func<T> instanceCreator);
     void Singleton<T>(T instance);
@@ -62,6 +63,17 @@ namespace Store.IoC {
     public void Register<T>(Func<T> instanceCreator) {
       lock (locker) {
         container.Register<T>(instanceCreator);
+      }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <param name="type"></param>
+    public void Register(string typeName, Type type) {
+      lock (locker) {
+        container.Register(typeName, type);
       }
     }
 

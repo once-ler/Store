@@ -20,7 +20,7 @@ namespace Store.Pgsql.Test {
 
     void before_each() {
       this.dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
-      ServiceProvider.Instance.Singleton<IVersionControlManager>(() => new VersionControlManager(this.dbContext));
+      ServiceProvider.Instance.Singleton(() => new VersionControlManager(this.dbContext));
       ServiceProvider.Instance.Singleton<PersonnelClient<Personnel>>(() => new PersonnelClient<Personnel>(this.dbContext));
       ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(this.dbContext));
       ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(this.dbContext));
@@ -37,7 +37,7 @@ namespace Store.Pgsql.Test {
     void describe_ioc_service_provider() {
 
       it["db context should not be null"] = () => dbContext.should_not_be(null);
-      it["version control manager should not be null"] = () => ServiceProvider.Instance.GetService<IVersionControlManager>().should_not_be(null);
+      it["version control manager should not be null"] = () => ServiceProvider.Instance.GetService<VersionControlManager>().should_not_be(null);
       it["droid client should not be null"] = () => ServiceProvider.Instance.GetService<DroidClient<Droid>>().should_not_be(null);
       it["human client should not be null"] = () => ServiceProvider.Instance.GetService<HumanClient<Human>>().should_not_be(null);
       it["rebel alliance client should not be null"] = () => ServiceProvider.Instance.GetService<RebelAllianceClient<RebelAlliance>>().should_not_be(null);
@@ -61,10 +61,10 @@ namespace Store.Pgsql.Test {
     }
 
     void describe_version_control_manager() {
-      IVersionControlManager p = null;
+      VersionControlManager p = null;
       
       before = () => {
-        p = ServiceProvider.Instance.GetService<IVersionControlManager>();
+        p = ServiceProvider.Instance.GetService<VersionControlManager>();
         this.versions = p.getVersionControls();
       };
       it["can get a list of version controls"] = () => versions.should_not_be_null();
@@ -106,7 +106,7 @@ namespace Store.Pgsql.Test {
         int offset = 0;
         int limit = 10;
         before = () => {
-          var p = ServiceProvider.Instance.GetService<IVersionControlManager>();
+          var p = ServiceProvider.Instance.GetService<VersionControlManager>();
           versions = p.getVersionControls();
           newVc = versions.FirstOrDefault(d => d.name == foo_bar_1);
           personnelClient = ServiceProvider.Instance.GetService<PersonnelClient<Personnel>>();          
@@ -121,7 +121,7 @@ namespace Store.Pgsql.Test {
 
       describe["can fetch a one type of Personnel"] = () => {
         before = () => {
-          var p = ServiceProvider.Instance.GetService<IVersionControlManager>();
+          var p = ServiceProvider.Instance.GetService<VersionControlManager>();
           versions = p.getVersionControls();
           newVc = versions.FirstOrDefault(d => d.name == foo_bar_1);
           personnelClient = ServiceProvider.Instance.GetService<PersonnelClient<Personnel>>();
@@ -135,7 +135,7 @@ namespace Store.Pgsql.Test {
 
       describe["can fetch a one Record type of Personnel"] = () => {
         before = () => {
-          var p = ServiceProvider.Instance.GetService<IVersionControlManager>();
+          var p = ServiceProvider.Instance.GetService<VersionControlManager>();
           versions = p.getVersionControls();
           newVc = versions.FirstOrDefault(d => d.name == foo_bar_1);
           personnelClient = ServiceProvider.Instance.GetService<PersonnelClient<Personnel>>();
@@ -149,7 +149,7 @@ namespace Store.Pgsql.Test {
 
       describe["can save one type of Personnel"] = () => {
         before = () => {
-          var p = ServiceProvider.Instance.GetService<IVersionControlManager>();
+          var p = ServiceProvider.Instance.GetService<VersionControlManager>();
           versions = p.getVersionControls();
           newVc = versions.FirstOrDefault(d => d.name == foo_bar_1);
           personnelClient = ServiceProvider.Instance.GetService<PersonnelClient<Personnel>>();
@@ -164,7 +164,7 @@ namespace Store.Pgsql.Test {
 
       describe["can save one Record type of Personnel"] = () => {
         before = () => {
-          var p = ServiceProvider.Instance.GetService<IVersionControlManager>();
+          var p = ServiceProvider.Instance.GetService<VersionControlManager>();
           versions = p.getVersionControls();
           newVc = versions.FirstOrDefault(d => d.name == foo_bar_1);
           personnelClient = ServiceProvider.Instance.GetService<PersonnelClient<Personnel>>();

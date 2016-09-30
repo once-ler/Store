@@ -9,6 +9,7 @@ namespace Store.IoC {
     T Get<T>();
     object GetStore(string typeOfStore);
     Type GetType(string typeName);
+    void Register(string typeName, Type type);
     void Register<TService>();
     void Register<TService>(Func<TService> instanceCreator);
     void Register<TService, TImpl>() where TImpl : TService;
@@ -23,8 +24,23 @@ namespace Store.IoC {
     private readonly Dictionary<Type, Func<object>> _registrations = new Dictionary<Type, Func<object>>();
     private readonly Dictionary<string, Func<Type>> _registrationsByName = new Dictionary<string, Func<Type>>();
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TService"></typeparam>
     public void Register<TService>() {
       Register<TService, TService>();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <param name="type"></param>
+    public void Register(string typeName, Type type) {
+      Func<Type> f1;
+      _registrationsByName.TryGetValue(typeName, out f1);
+      if (f1 == null) _registrationsByName.Add(typeName, () => type);
     }
 
     /// <summary>
@@ -120,9 +136,12 @@ namespace Store.IoC {
         Func<object> f;
         _registrations.TryGetValue(b, out f);
         if (f == null) _registrations.Add(b, () => b);
+        /*
         Func<Type> f1;
         _registrationsByName.TryGetValue(b.Name, out f1);
         if (f1 == null) _registrationsByName.Add(b.Name, () => b);
+        */
+        Register(b.Name, b);
       }
 
       if (a.Count() > 0) return a.FirstOrDefault().Key;
