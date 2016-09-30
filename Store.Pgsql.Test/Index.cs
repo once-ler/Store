@@ -184,7 +184,24 @@ namespace Store.Pgsql.Test {
         };
         it["saved record of type Personnel should not be null"] = () => recordOfPersonnel.should_not_be_null();
         it["saved result returned type should be of a Record of type Personnel"] = () => recordOfPersonnel.should(d => d.GetType() == typeof(Record<Personnel>));
-      };      
+      };
+    }
+
+    void describe_client_additional_tests() {
+      describe["can create version and store on demand"] = () => {
+        string someVersion = "v$12345678";
+        before = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          droidClient.save(someVersion, droid);
+        };
+        act = () => {
+          var p = ServiceProvider.Instance.GetService<VersionControlManager>();
+          versions = p.getVersionControls();
+          newVc = versions.FirstOrDefault(d => d.id == someVersion);
+        };
+        it["new version control should be created if not exist"] = () => newVc.should_not_be_null();
+      };
     }
 
     private DBContext dbContext;
@@ -201,6 +218,13 @@ namespace Store.Pgsql.Test {
 
   class Index {
     static void Main(string[] args) {
+      /*
+      var dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
+      ServiceProvider.Instance.Singleton<Client<Personnel>>(() => new Client<Personnel>(dbContext));
+      var pclient = ServiceProvider.Instance.GetService<Client<Personnel>>();
+      pclient.save("v$12345678", new Personnel { id = "0", name = "abc123", ts = DateTime.Now });
+      */
+
       /**
        * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll
        */

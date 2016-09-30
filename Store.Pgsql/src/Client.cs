@@ -10,7 +10,7 @@ using Store.IoC;
 namespace Store {
   namespace Pgsql {
       
-    public class Client<T> : IStore<T> where T : class, IModel {
+    public class Client<T> : IStore<T> where T : class, IModel, new() {
       
       public Client(DBContext _dbContext) {
         dbContext = string.Format("Server={0};Port={1};Database={2};User Id={3};Password={4};CommandTimeout={5};", _dbContext.server, _dbContext.port, _dbContext.database, _dbContext.userId, _dbContext.password, _dbContext.commandTimeout);
@@ -49,7 +49,7 @@ namespace Store {
         try {
           destRec = one<Record<T>>(version, "id", id);
         } catch (Exception e) {
-          destRec = new Record<T> { id = id, ts = DateTime.Now };
+          destRec = new Record<T> { id = id, ts = DateTime.Now, current = new T(), history = new List<History<T>>() };
         }
 
         // Try to re-populate all properties of attributes that are types.
@@ -167,7 +167,7 @@ namespace Store {
        * Protected methods
        */
       protected string createSchema(string version) {
-        return runSql(string.Format("select create_schema('{0})'", version));
+        return runSql(string.Format("select create_schema('{0}')", version));
       }
 
       protected string createStore(string version, string store) {

@@ -25,6 +25,7 @@ namespace Store {
     /// The most basic type.  Nothing else.
     /// </summary>
     public abstract class Model : IModel {
+      public Model() {}
       public string id { get; set; }
       public DateTime ts { get; set; }
       public string name { get; set; }

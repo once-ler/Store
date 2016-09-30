@@ -8,10 +8,6 @@ namespace Store.Pgsql.Test.fixtures {
 
     public class Personnel : Model {}
 
-    internal sealed class PersonnelClient<T> : Client<T> where T : Personnel {
-      public PersonnelClient(DBContext _dbContext) : base(_dbContext) { }
-    }
-
     public class Droid : Model {
       public List<IModel> friends { get; set; }
     }
