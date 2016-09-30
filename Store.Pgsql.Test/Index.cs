@@ -26,6 +26,7 @@ namespace Store.Pgsql.Test {
       ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(this.dbContext));
       ServiceProvider.Instance.Singleton<RebelAllianceClient<RebelAlliance>>(() => new RebelAllianceClient<RebelAlliance>(this.dbContext));
       ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(this.dbContext));
+      ServiceProvider.Instance.Register("Empire", typeof(Empire));
 
       personnel = null;
       recordOfPersonnel = null;
@@ -57,6 +58,14 @@ namespace Store.Pgsql.Test {
           this.droidClientB = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
         };
         it["both instances should be the same"] = () => this.droidClientA.should_be_same(this.droidClientB);
+      };
+
+      describe["getting empire type by string"] = () => {
+        Type ty = null;
+        act = () => {
+          ty = ServiceProvider.Instance.GetType("Empire");
+        };
+        it["type should be type of Empire"] = () => ty.should_be_same(typeof(Empire));
       };
     }
 
@@ -175,7 +184,7 @@ namespace Store.Pgsql.Test {
         };
         it["saved record of type Personnel should not be null"] = () => recordOfPersonnel.should_not_be_null();
         it["saved result returned type should be of a Record of type Personnel"] = () => recordOfPersonnel.should(d => d.GetType() == typeof(Record<Personnel>));
-      };
+      };      
     }
 
     private DBContext dbContext;
