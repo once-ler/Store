@@ -218,17 +218,22 @@ namespace Store.Pgsql.Test {
         act = () => {
           empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
           empire = empireClient.one<Empire>(someVersion, "id", "empire");
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
+          empireClient.associate<Participant, Droid>(someVersion, empire.id, droid.id);
+          empire = empireClient.one<Empire>(someVersion, "id", "empire");          
         };
         it["the empire should not be null"] = () => empire.should_not_be_null();
+        it["the droid should be a participant of the empire"] = () => empire.roster.FirstOrDefault(d => d.party.id == "2-1B").should_not_be_null();
       };
     }
 
     private DBContext dbContext;
     private DroidClient<Droid> droidClientA;
     private DroidClient<Droid> droidClientB;
-    private RebelAllianceClient<RebelAlliance> rebelAllianceClient;
     private EmpireClient<Empire> empireClient;
     private Empire empire;
+    private Droid droid;
     private List<VersionControl> versions = new List<VersionControl>();
     private List<Record<Personnel>> personnelList = new List<Record<Personnel>>();
     private VersionControl newVc = null;
