@@ -126,8 +126,6 @@ namespace Store {
       }
 
       public Record<Affiliation<U>> associate<U, M>(string version, string recordId, string partyId) where U : Participant, new() where M : Model {
-        if (typeof(T).BaseType != typeof(Affiliation<U>)) throw new NotImplementedException("A type not derived from Affiliation currently does not implement associate().");
-
         var rec = one<Record<T>>(version, "id", recordId);
         if (rec == null) throw new KeyNotFoundException("Record id: " + recordId + " not found.");
 
@@ -138,13 +136,13 @@ namespace Store {
         if (party == null) throw new KeyNotFoundException("party id: " + partyId + " not found.");
 
         var program = rec.current as Affiliation<U>;
-        var partyExist = program.roster.FirstOrDefault(d => d.party.id == partyId);
+        var partyExist = program.roster.FirstOrDefault(d => d.party != null && d.party.id == partyId);
         if (partyExist == null) {
           // Derived Participant can have custom attributes like effectiveDate a d isLeadership
           U u = new U();
           u.id = party.id;
           u.ts = DateTime.Now;
-          u.party = party.current;
+          u.party = party.current as M;
           (rec.current as Affiliation<U>).roster.Add(u);
         }
 
@@ -152,8 +150,6 @@ namespace Store {
       }
 
       public Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant  {
-        if (typeof(T).BaseType != typeof(Affiliation<U>)) throw new NotImplementedException("A type not derived from Affiliation currently does not implement disassociate().");
-        
         var rec = one<Record<T>>(version, "id", recordId);
         if (rec == null) throw new KeyNotFoundException("Record id: " + recordId + " not found.");
 
