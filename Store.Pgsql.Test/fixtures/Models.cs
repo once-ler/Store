@@ -12,7 +12,9 @@ namespace Store.Pgsql.Test.fixtures {
       // public List<IModel> friends { get; set; }
     }
 
-    public class DroidExtended : Droid { }
+    public class DroidExtended : Droid {
+      public string language { get; set; }
+    }
 
     public class Human : Model {
       // public List<IModel> friends { get; set; }

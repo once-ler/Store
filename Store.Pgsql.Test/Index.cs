@@ -273,7 +273,7 @@ namespace Store.Pgsql.Test {
 
   class Index {
     static void Main(string[] args) {
-      /*
+      
       string foo_bar_1 = "foo bar 1";
       string someVersion = "v$12345678";
 
@@ -313,12 +313,12 @@ namespace Store.Pgsql.Test {
       // Associate something that was also extended to that extended affiliation
       ServiceProvider.Instance.Singleton<DroidClient<DroidExtended>>(() => new DroidClient<DroidExtended>(dbContext));
       var droidExtendedClient = ServiceProvider.Instance.GetService<DroidClient<DroidExtended>>();
-      var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+      var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now, language = "None" };
       droidExtendedClient.save(someVersion, droidExtended);
 
       var empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire");
       empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
-      */
+      
 
       /**
        * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll

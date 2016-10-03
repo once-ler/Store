@@ -62,7 +62,7 @@ namespace Store {
     /// Participant wraps another Model.  The purpose of Participant is to timestamp when member was created for an Affiliation.
     /// </summary>
     public class Participant : Model {
-      public Model party { get; set; }
+      public dynamic party { get; set; }
     }
 
     /// <summary>

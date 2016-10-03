@@ -149,7 +149,7 @@ namespace Store {
         return save(version, rec) as Record<Affiliation<U>>;
       }
 
-      public Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant  {
+      public Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant {
         var rec = one<Record<T>>(version, "id", recordId);
         if (rec == null) throw new KeyNotFoundException("Record id: " + recordId + " not found.");
 
