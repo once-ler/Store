@@ -26,6 +26,8 @@ namespace Store.Pgsql.Test {
       ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(this.dbContext));
       ServiceProvider.Instance.Singleton<RebelAllianceClient<RebelAlliance>>(() => new RebelAllianceClient<RebelAlliance>(this.dbContext));
       ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(this.dbContext));
+      ServiceProvider.Instance.Singleton<Client<EmpireExtended>>(() => new Client<EmpireExtended>(this.dbContext));
+      ServiceProvider.Instance.Singleton<Client<DroidExtended>>(() => new Client<DroidExtended>(this.dbContext));
       ServiceProvider.Instance.Register("Empire", typeof(Empire));
 
       personnel = null;
@@ -226,6 +228,30 @@ namespace Store.Pgsql.Test {
         it["the empire should not be null"] = () => empire.should_not_be_null();
         it["the droid should be a participant of the empire"] = () => empire.roster.FirstOrDefault(d => d.party.id == "2-1B").should_not_be_null();
       };
+
+      describe["can associate a derived participant to an derived affiliation"] = () => {
+        string someVersion = "v$12345678";
+        before = () => {
+          var droidExtendedClient = ServiceProvider.Instance.GetService<Client<DroidExtended>>();
+          var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          droidExtendedClient.save(someVersion, droidExtended);
+
+          var empireExtendedClient = ServiceProvider.Instance.GetService<Client<EmpireExtended>>();
+          var badRoster = new List<ParticipantExtended> { new ParticipantExtended { id = droidExtended.id, party = droidExtended } };
+          var empire = new EmpireExtended { id = "empire", roster = badRoster, ts = DateTime.Now };
+          empireExtendedClient.save(someVersion, empire);
+        };
+        act = () => {
+          var empireExtendedClient = ServiceProvider.Instance.GetService<Client<EmpireExtended>>();
+          empireExtended = empireExtendedClient.one<EmpireExtended>(someVersion, "id", "empire");
+          var droidExtendedClient = ServiceProvider.Instance.GetService<Client<DroidExtended>>();
+          droidExtended = droidExtendedClient.one<DroidExtended>(someVersion, "id", "2-1B");
+          empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtended.id, droidExtended.id);
+          empireExtended = empireExtendedClient.one<EmpireExtended>(someVersion, "id", "empire");
+        };
+        it["the derived empire should not be null"] = () => empireExtended.should_not_be_null();
+        it["the derived droid should be a derived participant of the derived empire"] = () => empireExtended.roster.FirstOrDefault(d => d.party.id == "2-1B").should_not_be_null();
+      };
     }
 
     private DBContext dbContext;
@@ -234,6 +260,8 @@ namespace Store.Pgsql.Test {
     private EmpireClient<Empire> empireClient;
     private Empire empire;
     private Droid droid;
+    private EmpireExtended empireExtended;
+    private Droid droidExtended;
     private List<VersionControl> versions = new List<VersionControl>();
     private List<Record<Personnel>> personnelList = new List<Record<Personnel>>();
     private VersionControl newVc = null;
@@ -263,19 +291,33 @@ namespace Store.Pgsql.Test {
       // vc.createNewVersionControl(foo_bar_1);
 
       // Create an Affiliation
-      ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(dbContext));
-      var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
-      var badRoster = new List<Participant>();
-      var empire = new Empire { id = "empire", roster = badRoster, ts = DateTime.Now };
-      empireClient.save(someVersion, empire);
+      // ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(dbContext));
+      // var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+      // var badRoster = new List<Participant>();
+      // var empire = new Empire { id = "empire", roster = badRoster, ts = DateTime.Now };
+      // empireClient.save(someVersion, empire);
       // Associate something to that affiliation
-      ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
-      var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
-      var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
-      droidClient.save(someVersion, droid);
+      // ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
+      // var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+      // var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+      // droidClient.save(someVersion, droid);
+      // var empireObj = empireClient.one<Record<Empire>>(someVersion, "id", "empire");
+      // empireClient.associate<Participant, Droid>(someVersion, empireObj.id, droid.id);
 
-      var empireObj = empireClient.one<Record<Empire>>(someVersion, "id", "empire");
-      empireClient.associate<Participant, Droid>(someVersion, empireObj.id, droid.id);
+      // Create an extended Affiliation
+      ServiceProvider.Instance.Singleton<Client<EmpireExtended>>(() => new Client<EmpireExtended>(dbContext));
+      var empireExtendedClient = ServiceProvider.Instance.GetService<Client<EmpireExtended>>();
+      var badRosterExtended = new List<ParticipantExtended>();
+      var empireExtended = new EmpireExtended { id = "empire", roster = badRosterExtended, ts = DateTime.Now };
+      empireExtendedClient.save(someVersion, empireExtended);
+      // Associate something that was also extended to that extended affiliation
+      ServiceProvider.Instance.Singleton<DroidClient<DroidExtended>>(() => new DroidClient<DroidExtended>(dbContext));
+      var droidExtendedClient = ServiceProvider.Instance.GetService<DroidClient<DroidExtended>>();
+      var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+      droidExtendedClient.save(someVersion, droidExtended);
+
+      var empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire");
+      empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
       */
 
       /**
