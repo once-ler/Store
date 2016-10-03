@@ -119,7 +119,7 @@ namespace Store.IoC {
     /// </summary>
     /// <param name="typeOfStore"></param>
     /// <returns></returns>
-    public object GetStore(string typeOfStore) {
+    public dynamic GetStore(string typeOfStore) {
       var ty = container.GetStore(typeOfStore);
       if (ty != null) return container.Get(ty as Type);
       return null;

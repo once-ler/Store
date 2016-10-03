@@ -9,11 +9,11 @@ namespace Store.Pgsql.Test.fixtures {
     public class Personnel : Model {}
 
     public class Droid : Model {
-      public List<IModel> friends { get; set; }
+      // public List<IModel> friends { get; set; }
     }
 
     public class Human : Model {
-      public List<IModel> friends { get; set; }
+      // public List<IModel> friends { get; set; }
     }
 
     public class RebelAlliance :  Affiliation<Participant> {}

@@ -72,6 +72,7 @@ namespace Store {
       /// Note:
       /// This is typically used internally by the IStore implementation when data is fetched from the store and must be deserialized into a statically typed object.
       /// </summary>
+      /// <typeparam name="U">U should be a type that derives from Model.</typeparam>
       /// <param name="d">The dynamic object.</param>
       /// <returns>One record of IModel.</returns>
       Record<T> makeRecord(dynamic d);
@@ -81,6 +82,7 @@ namespace Store {
       /// Note:
       /// This is typically used by a web applcation when it recieves a POST request from a client.
       /// </summary>
+      /// <typeparam name="U">U should be a type that derives from Model.</typeparam>
       /// <param name="jsonString">A valid JSON object string.</param>
       /// <returns>One record of IModel.</returns>
       Record<T> makeRecord(string jsonString);

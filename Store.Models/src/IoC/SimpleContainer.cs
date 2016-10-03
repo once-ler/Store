@@ -115,7 +115,7 @@ namespace Store.IoC {
     /// </summary>
     /// <param name="typeOfStore"></param>
     /// <returns></returns>
-    public object GetStore(string typeOfStore) {
+    public dynamic GetStore(string typeOfStore) {
       IList<Type> typesToRegister = new List<Type>();
 
       var a = _registrations.Where(d => {
@@ -130,17 +130,13 @@ namespace Store.IoC {
         }
         return false;
       }).ToList();
-
+      
       // Register the type internally
       foreach (var b in typesToRegister) {
         Func<object> f;
         _registrations.TryGetValue(b, out f);
         if (f == null) _registrations.Add(b, () => b);
-        /*
-        Func<Type> f1;
-        _registrationsByName.TryGetValue(b.Name, out f1);
-        if (f1 == null) _registrationsByName.Add(b.Name, () => b);
-        */
+        // Register by type name
         Register(b.Name, b);
       }
 

@@ -131,17 +131,23 @@ namespace Store {
         var rec = one<Record<T>>(version, "id", recordId);
         if (rec == null) throw new KeyNotFoundException("Record id: " + recordId + " not found.");
 
-        var party = one<Record<M>>(version, "id", partyId);
+        // Get the Store of type M
+        dynamic partyStore = ServiceProvider.Instance.GetStore(typeof(M).Name);
+        
+        var party = partyStore.one<Record<M>>(version, "id", partyId);
         if (party == null) throw new KeyNotFoundException("party id: " + partyId + " not found.");
 
         var program = rec.current as Affiliation<U>;
-        var leaderExist = program.roster.FirstOrDefault(d => d.party.id == partyId);
-        if (leaderExist == null) {
+        var partyExist = program.roster.FirstOrDefault(d => d.party.id == partyId);
+        if (partyExist == null) {
           // Derived Participant can have custom attributes like effectiveDate a d isLeadership
           U u = new U();
+          u.id = party.id;
+          u.ts = DateTime.Now;
           u.party = party.current;
-          program.roster.Add(u);
+          (rec.current as Affiliation<U>).roster.Add(u);
         }
+
         return save(version, rec) as Record<Affiliation<U>>;
       }
 
@@ -153,7 +159,7 @@ namespace Store {
 
         var program = rec.current as Affiliation<U>;
         var removedMember = program.roster.Where(d => d.party.id != partyId);
-        program.roster = removedMember.ToList();
+        (rec.current as Affiliation<U>).roster = removedMember.ToList();
         return save(version, rec) as Record<Affiliation<U>>;
       }
 
@@ -179,6 +185,7 @@ namespace Store {
       
       protected string resolveTypeToString<U>() {
         if (typeof(U) == typeof(Record<T>)) return typeof(T).Name.ToLower();
+        if (typeof(U).IsGenericType == true) return typeof(U).GetGenericArguments().FirstOrDefault().Name.ToLower();
         return typeof(U).Name.ToLower();
       }
 
@@ -213,9 +220,7 @@ namespace Store {
         var d = results.FirstOrDefault();
         if (d == null) return null;
         var rec = makeRecord(d);
-        if (typeof(U) == typeof(T)) {
-          return rec.current;
-        }
+        if (typeof(U) == typeof(T)) return rec.current;
         return rec;
       }
 

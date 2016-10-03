@@ -202,11 +202,33 @@ namespace Store.Pgsql.Test {
         };
         it["new version control should be created if not exist"] = () => newVc.should_not_be_null();
       };
+
+      describe["can associate a participant to an affiliation"] = () => {
+        string someVersion = "v$12345678";
+        before = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          droidClient.save(someVersion, droid);
+
+          var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+          var badRoster = new List<Participant> { new Participant { id = droid.id, party = droid } };
+          var empire = new Empire { id = "empire", roster = badRoster, ts = DateTime.Now };
+          empireClient.save(someVersion, empire);
+        };
+        act = () => {
+          empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+          empire = empireClient.one<Empire>(someVersion, "id", "empire");
+        };
+        it["the empire should not be null"] = () => empire.should_not_be_null();
+      };
     }
 
     private DBContext dbContext;
     private DroidClient<Droid> droidClientA;
     private DroidClient<Droid> droidClientB;
+    private RebelAllianceClient<RebelAlliance> rebelAllianceClient;
+    private EmpireClient<Empire> empireClient;
+    private Empire empire;
     private List<VersionControl> versions = new List<VersionControl>();
     private List<Record<Personnel>> personnelList = new List<Record<Personnel>>();
     private VersionControl newVc = null;
@@ -220,19 +242,35 @@ namespace Store.Pgsql.Test {
     static void Main(string[] args) {
       /*
       string foo_bar_1 = "foo bar 1";
+      string someVersion = "v$12345678";
 
       var dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
-      ServiceProvider.Instance.Singleton<Client<Personnel>>(() => new Client<Personnel>(dbContext));
-      var pclient = ServiceProvider.Instance.GetService<Client<Personnel>>();
+      // ServiceProvider.Instance.Singleton<Client<Personnel>>(() => new Client<Personnel>(dbContext));
+      // var pclient = ServiceProvider.Instance.GetService<Client<Personnel>>();
       // pclient.save("v$12345678", new Personnel { id = "0", name = "abc123", ts = DateTime.Now });
       // var p = pclient.one<Personnel>("v$0", "id", "taoh02");
       // var l = pclient.list("v$0", 0, 10);
 
       ServiceProvider.Instance.Singleton<VersionControlManager>(() => new VersionControlManager(dbContext));
-      var vc = ServiceProvider.Instance.GetService<VersionControlManager>();
-      var vcs = vc.getVersionControls();
-      var vcs1 = vc.getVersionControls().Where(d => d.name == foo_bar_1).ToList();
+      // var vc = ServiceProvider.Instance.GetService<VersionControlManager>();
+      // var vcs = vc.getVersionControls();
+      // var vcs1 = vc.getVersionControls().Where(d => d.name == foo_bar_1).ToList();
       // vc.createNewVersionControl(foo_bar_1);
+
+      // Create an Affiliation
+      ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(dbContext));
+      var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+      var badRoster = new List<Participant>();
+      var empire = new Empire { id = "empire", roster = badRoster, ts = DateTime.Now };
+      empireClient.save(someVersion, empire);
+      // Associate something to that affiliation
+      ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
+      var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+      var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+      droidClient.save(someVersion, droid);
+
+      var empireObj = empireClient.one<Record<Empire>>(someVersion, "id", "empire");
+      empireClient.associate<Participant, Droid>(someVersion, empireObj.id, droid.id);
       */
 
       /**
