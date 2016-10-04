@@ -106,7 +106,7 @@ namespace Store {
       /// <param name="field">The key field to search.  If nested, use dot notation.</param>
       /// <param name="value">The value for the key field to search.</param>
       /// <returns>One record of IModel or just IModel if exists.  If no IModel exists, error will be thrown.</returns>
-      U one<U>(string version, string field, string value) where U : class;
+      U one<U>(string version, string field, string value, Type typeOfParty = null) where U : class;
 
       /// <summary>
       /// 

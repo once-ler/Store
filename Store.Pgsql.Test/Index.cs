@@ -276,6 +276,25 @@ namespace Store.Pgsql.Test {
         it["the droid should no longer be a participant of the empire"] = () => empire.roster.FirstOrDefault(d => d.party.id == "2-1B").should_be_null();
       };
 
+      describe["can pass a party type to one function for Affiliation"] = () => {
+        string someVersion = "v$12345678";
+        before = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          droidClient.save(someVersion, droid);
+
+          var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+          var badRoster = new List<Participant> { new Participant { id = droid.id, party = droid } };
+          var empire = new Empire { id = "empire", roster = badRoster, ts = DateTime.Now };
+          empireClient.save(someVersion, empire);
+        };
+        act = () => {
+          empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+          empire = empireClient.one<Empire>(someVersion, "id", "empire", typeof(Droid));
+          droid = empire.roster.FirstOrDefault(d => d.party.id == "2-1B").party as Droid;
+        };
+        it["the party type, droid, should be the same as the one passed into the one function"] = () => droid.id.should_be("2-1B");
+      };
     }
 
     private DBContext dbContext;
@@ -342,6 +361,9 @@ namespace Store.Pgsql.Test {
 
       var empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire");
       empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+
+      // Passing a "party" Type to an Affiliation 
+      empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire", typeof(DroidExtended));
 
       // Disassociate from an Affiliation
       empireExtendedClient.disassociate<ParticipantExtended>(someVersion, empireExtendedObj.id, droidExtended.id);

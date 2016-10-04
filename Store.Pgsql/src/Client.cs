@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Store.Interfaces;
 using Store.Models;
@@ -29,8 +30,8 @@ namespace Store {
         return list;
       }
 
-      public U one<U>(string version, string field, string value) where U : class {
-        var rec = getOneRecord<U>(version, field, value);
+      public U one<U>(string version, string field, string value, Type typeOfParty = null) where U : class {
+        var rec = getOneRecord<U>(version, field, value, typeOfParty);
         if (rec == null) throw new Exception("IModel for field: " + field + " and value: " + value + " not found.");
         return rec as U;
       }
@@ -146,7 +147,7 @@ namespace Store {
           (rec.current as Affiliation<U>).roster.Add(u);
         }
 
-        return save(version, rec) as Record<Affiliation<U>>;
+        return save(version, rec, false) as Record<Affiliation<U>>;
       }
 
       public Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant {
@@ -209,13 +210,15 @@ namespace Store {
         return OperatonResult.Succeeded.ToString("F"); // Will display "Succeeded"
       }
 
-      protected U getOneRecord<U>(string version, string field, string value) where U : class {
+      protected U getOneRecord<U>(string version, string field, string value, Type typeOfParty = null) where U : class {
         var runner = new CommandRunner(dbContext);
         var sql = string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, this.resolveTypeToString<U>(), field, value });
         var results = runner.ExecuteDynamic(sql, null);
         var d = results.FirstOrDefault();
         if (d == null) return null;
         var rec = makeRecord(d);
+        // "party" of Participant and is unknown at runtime.
+        if (rec.current.GetType().BaseType.Name == "Affiliation`1" && typeOfParty != null) convertPartyToType(rec.current.roster, typeOfParty);
         if (typeof(U) == typeof(T)) return rec.current;
         return rec;
       }
@@ -252,6 +255,15 @@ namespace Store {
               recursePopulate(version, item);
             }
           }
+        }
+      }
+
+      protected void convertPartyToType(dynamic partipants, Type typeOfParty) {
+        if (partipants == null) return;
+        foreach(var p in partipants) {
+          var json = JsonConvert.SerializeObject(p.party);
+          JObject o = JObject.Parse(json);
+          p.party = o.ToObject(typeOfParty);
         }
       }
 
