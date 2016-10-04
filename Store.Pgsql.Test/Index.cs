@@ -223,7 +223,7 @@ namespace Store.Pgsql.Test {
           var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
           droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
           empireClient.associate<Participant, Droid>(someVersion, empire.id, droid.id);
-          empire = empireClient.one<Empire>(someVersion, "id", "empire");          
+          empire = empireClient.one<Empire>(someVersion, "id", "empire");
         };
         it["the empire should not be null"] = () => empire.should_not_be_null();
         it["the droid should be a participant of the empire"] = () => empire.roster.FirstOrDefault(d => d.party.id == "2-1B").should_not_be_null();
@@ -252,6 +252,30 @@ namespace Store.Pgsql.Test {
         it["the derived empire should not be null"] = () => empireExtended.should_not_be_null();
         it["the derived droid should be a derived participant of the derived empire"] = () => empireExtended.roster.FirstOrDefault(d => d.party.id == "2-1B").should_not_be_null();
       };
+
+      describe["can disassociate a participant from an affiliation"] = () => {
+        string someVersion = "v$12345678";
+        before = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          droidClient.save(someVersion, droid);
+
+          var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+          var badRoster = new List<Participant> { new Participant { id = droid.id, party = droid } };
+          var empire = new Empire { id = "empire", roster = badRoster, ts = DateTime.Now };
+          empireClient.save(someVersion, empire);
+        };
+        act = () => {
+          empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+          empire = empireClient.one<Empire>(someVersion, "id", "empire");
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
+          empireClient.disassociate<Participant>(someVersion, empire.id, droid.id);
+          empire = empireClient.one<Empire>(someVersion, "id", "empire");
+        };
+        it["the droid should no longer be a participant of the empire"] = () => empire.roster.FirstOrDefault(d => d.party.id == "2-1B").should_be_null();
+      };
+
     }
 
     private DBContext dbContext;
@@ -273,7 +297,7 @@ namespace Store.Pgsql.Test {
 
   class Index {
     static void Main(string[] args) {
-      
+      /*
       string foo_bar_1 = "foo bar 1";
       string someVersion = "v$12345678";
 
@@ -318,7 +342,10 @@ namespace Store.Pgsql.Test {
 
       var empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire");
       empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
-      
+
+      // Disassociate from an Affiliation
+      empireExtendedClient.disassociate<ParticipantExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+      */
 
       /**
        * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll
