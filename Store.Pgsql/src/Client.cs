@@ -42,7 +42,7 @@ namespace Store {
         return rec;
       }
 
-      public U save<U>(string version, U doc, bool mergeBeforeSave = true) where U : class {
+      public U save<U>(string version, U doc) where U : class {
         var id = typeof(U) == typeof(T) ? (doc as Model).id : ((doc as Record<T>).current as Model).id;
         
         // Always fetch current record from storage
@@ -60,7 +60,7 @@ namespace Store {
         recursePopulate(version, src); // Should it be from "master" or version when repopulating?
 
         // Merge the incoming source doc to the incumbent doc.
-        T o = (mergeBeforeSave == true ? merge(destRec.current, src) : src);
+        T o = merge(destRec.current, src);
         (o as Model).ts = DateTime.Now;
 
         // Current is now merged
@@ -120,9 +120,11 @@ namespace Store {
       }
 
       public T merge(T dest, T source) {
+        // The expected behavior for arrays is replace, not the default concat
+        var mergeSettings = new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace };
         var destObj = JObject.FromObject(dest);
         var srcObj = JObject.FromObject(source);
-        destObj.Merge(srcObj);
+        destObj.Merge(srcObj, mergeSettings);
         return destObj.ToObject<T>();
       }
 
@@ -147,7 +149,7 @@ namespace Store {
           (rec.current as Affiliation<U>).roster.Add(u);
         }
 
-        return save(version, rec, false) as Record<Affiliation<U>>;
+        return save(version, rec) as Record<Affiliation<U>>;
       }
 
       public Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant {
@@ -157,7 +159,7 @@ namespace Store {
         var program = rec.current as Affiliation<U>;
         var removedMember = program.roster.Where(d => d.party.id != partyId);
         (rec.current as Affiliation<U>).roster = removedMember.ToList();
-        return save(version, rec, false) as Record<Affiliation<U>>;
+        return save(version, rec) as Record<Affiliation<U>>;
       }
 
       /*

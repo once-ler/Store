@@ -231,6 +231,8 @@ namespace Store.Pgsql.Test {
 
       describe["can associate a derived participant to an derived affiliation"] = () => {
         string someVersion = "v$12345678";
+        int beforeAssociateCount = 0;
+        int afterAssociateCount = 0;
         before = () => {
           var droidExtendedClient = ServiceProvider.Instance.GetService<Client<DroidExtended>>();
           var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now };
@@ -244,13 +246,16 @@ namespace Store.Pgsql.Test {
         act = () => {
           var empireExtendedClient = ServiceProvider.Instance.GetService<Client<EmpireExtended>>();
           empireExtended = empireExtendedClient.one<EmpireExtended>(someVersion, "id", "empire");
+          beforeAssociateCount = empireExtended.roster.Count();
           var droidExtendedClient = ServiceProvider.Instance.GetService<Client<DroidExtended>>();
           droidExtended = droidExtendedClient.one<DroidExtended>(someVersion, "id", "2-1B");
           empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtended.id, droidExtended.id);
           empireExtended = empireExtendedClient.one<EmpireExtended>(someVersion, "id", "empire");
+          afterAssociateCount = empireExtended.roster.Count();
         };
         it["the derived empire should not be null"] = () => empireExtended.should_not_be_null();
         it["the derived droid should be a derived participant of the derived empire"] = () => empireExtended.roster.FirstOrDefault(d => d.party.id == "2-1B").should_not_be_null();
+        it["the count of the roster after associate should always be the same or 1 more than the count of the roster before associate and the difference should never more than 1"] = () => afterAssociateCount.should(n => n <= beforeAssociateCount + 1);
       };
 
       describe["can disassociate a participant from an affiliation"] = () => {
@@ -295,9 +300,49 @@ namespace Store.Pgsql.Test {
         };
         it["the party type, droid, should be the same as the one passed into the one function"] = () => droid.id.should_be("2-1B");
       };
+
+      describe["can assign a list Affiliation to a Model"] = () => {
+        string someVersion = "v$12345678";
+        int beforeAllianceCount = 0;
+        int afterAllianceCount = 0;
+
+        before = () => {
+          empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+          droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+
+          // Create an Empire
+          var empire = new Empire { id = "empire", roster = { }, ts = DateTime.Now };
+          empireClient.save(someVersion, empire);
+
+          // Create a Droid
+          var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          // Assign an Affiliation to the droid
+          droid.alliance.Add(empire);
+          droidClient.save(someVersion, droid);
+
+          // Check how many alliances the droid has
+          droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
+          beforeAllianceCount = droid.alliance.Count();          
+        };
+        act = () => {
+          empire = empireClient.one<Empire>(someVersion, "id", "empire");
+          // Assign the same Affiliation to the droid 3 more times and get count
+          foreach (int i in Enumerable.Range(1, 3)) {
+            droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
+            // New list of Affiliation
+            droid.alliance = new List<Affiliation<Participant>> { empire };
+            droidClient.save(someVersion, droid);
+          }
+          droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
+          afterAllianceCount = droid.alliance.Count();
+        };
+
+        it["the counts for the list of affiliation of a droid before replacing it 3 times with the same affiliation and proves the save function is doing a replace and not a concat"] = () => afterAllianceCount.should(count => count == beforeAllianceCount);
+      };
     }
 
     private DBContext dbContext;
+    private DroidClient<Droid> droidClient;
     private DroidClient<Droid> droidClientA;
     private DroidClient<Droid> droidClientB;
     private EmpireClient<Empire> empireClient;
@@ -316,7 +361,7 @@ namespace Store.Pgsql.Test {
 
   class Index {
     static void Main(string[] args) {
-      /*
+      
       string foo_bar_1 = "foo bar 1";
       string someVersion = "v$12345678";
 
@@ -365,9 +410,43 @@ namespace Store.Pgsql.Test {
       // Passing a "party" Type to an Affiliation 
       empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire", typeof(DroidExtended));
 
+      // Associate again 3 times and check for dupes
+      foreach(int i in Enumerable.Range(1, 3)) {
+        empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+      }
+      empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+
       // Disassociate from an Affiliation
       empireExtendedClient.disassociate<ParticipantExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
-      */
+
+      // Create List<IModel> as attribute of Model and associate it with Affiliation
+      ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(dbContext));
+      var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
+      ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
+      var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+      
+      // Create an Empire
+      var empire = new Empire { id = "empire", roster = { }, ts = DateTime.Now };
+      empireClient.save(someVersion, empire);
+
+      // Create a Droid
+      var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+      // Assign an Affiliation to the droid
+      droid.alliance.Add(empire);
+      droidClient.save(someVersion, droid);
+
+      // Check how many alliances the droid has
+      droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
+      int allianceCount = 0;
+      allianceCount = droid.alliance.Count();
+
+      // Assign the same Affiliation to the droid 3 times and get count
+      foreach(int i in Enumerable.Range(1, 3)) {
+        droid = droidClient.one<Droid>(someVersion, "id", "2-1B");
+        droid.alliance = new List<Affiliation<Participant>> { empire };
+        droidClient.save(someVersion, droid);
+      }
+      allianceCount = droid.alliance.Count();
 
       /**
        * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll

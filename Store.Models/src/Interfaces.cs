@@ -140,11 +140,10 @@ namespace Store {
       /// <typeparam name="U">IModel or Record{IModel}</typeparam>
       /// <param name="version">The VersionControl identifier for this IModel.</param>
       /// <param name="doc">Record{T} where T is type of Personnel, ResearchProgram, etc.</param>
-      /// <param name="mergeBeforeSave">Merge changes into the current document from storage.  Default is true.</param>
       /// <returns>The same Record{IModel} if successful.  Exception will be thrown is failure.</returns>
       /// Note: If there was an error in creating, Exception will be thrown.
       /// It is up to you to catch it.
-      U save<U>(string version, U doc, bool mergeBeforeSave = true) where U : class;
+      U save<U>(string version, U doc) where U : class;
 
       /// <summary>
       /// Fetch IModel records for a VersionControl that meets the search criteria.

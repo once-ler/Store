@@ -9,7 +9,10 @@ namespace Store.Pgsql.Test.fixtures {
     public class Personnel : Model { }
 
     public class Droid : Model {
-      // public List<IModel> friends { get; set; }
+      public Droid() {
+        alliance = new List<Affiliation<Participant>>();
+      }
+      public List<Affiliation<Participant>> alliance { get; set; }
     }
 
     public class DroidExtended : Droid {
@@ -17,7 +20,10 @@ namespace Store.Pgsql.Test.fixtures {
     }
 
     public class Human : Model {
-      // public List<IModel> friends { get; set; }
+      public Human() {
+        alliance = new List<Affiliation<Participant>>();
+      }
+      public List<Affiliation<Participant>> alliance { get; set; }
     }
 
     public class HumanExtended : Human { }
