@@ -36,6 +36,8 @@ namespace Store.Pgsql.Test.fixtures {
 
     public class EmpireExtended : Affiliation<ParticipantExtended> { }
 
+    public class FirstOrder : EmpireExtended { } 
+
     public class ParticipantExtended : Participant { }
  }
 }

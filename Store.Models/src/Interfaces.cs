@@ -180,7 +180,7 @@ namespace Store {
       /// <param name="recordId">The id of the Record type for an Affiliation.  An Affiliation can also be derived.  i.e. RebelAlliance, Empire, TradeFederation, Resistance, etc.</param>
       /// <param name="partyId">The id that uniquely identifies the Model referenced in the "party" attribute of the Participant.</param>
       /// <returns></returns>
-      Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant;      
+      Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant;
     }
     
   }  

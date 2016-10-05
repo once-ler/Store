@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
+using System.Reflection;
 
 namespace Store {
   namespace Pgsql {
@@ -85,6 +86,39 @@ namespace Store {
           d.Add(rdr.GetName(i), DBNull.Value.Equals(rdr[i]) ? null : rdr[i]);
         return e;
       }
-    }
-  }
+
+      /// <summary>
+      /// Gets the final descendant Type of a derived class.
+      /// </summary>
+      /// <param name="t">System.Reflection.TypeInfo</param>
+      /// <returns></returns>
+      public static List<Type> InheritsFrom(this TypeInfo t) {
+        List<Type> types = new List<Type>();
+        Type cur = t.BaseType;
+        types.Add(cur);
+        while (cur != null) {
+          cur = cur.BaseType;
+          if (cur != null) types.Add(cur);
+        }
+        return types;
+      }
+
+      /// <summary>
+      /// Gets the final descendant Type of a derived class.
+      /// </summary>
+      /// <param name="t">System.Type</param>
+      /// <returns></returns>
+      public static List<Type> InheritsFrom(this Type t) {
+        List<Type> types = new List<Type>();
+        Type cur = t.BaseType;
+        types.Add(cur);
+        while (cur != null) {
+          cur = cur.BaseType;
+          if (cur != null) types.Add(cur);
+        }
+        return types;
+      }
+
+    }    
+  }  
 }

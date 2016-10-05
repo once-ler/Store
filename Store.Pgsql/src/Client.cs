@@ -127,8 +127,10 @@ namespace Store {
         destObj.Merge(srcObj, mergeSettings);
         return destObj.ToObject<T>();
       }
-
+      
       public Record<Affiliation<U>> associate<U, M>(string version, string recordId, string partyId) where U : Participant, new() where M : Model {
+        var ty = typeof(T);
+
         var rec = one<Record<T>>(version, "id", recordId);
         if (rec == null) throw new KeyNotFoundException("Record id: " + recordId + " not found.");
 
@@ -137,7 +139,7 @@ namespace Store {
         
         var party = partyStore.one<Record<M>>(version, "id", partyId);
         if (party == null) throw new KeyNotFoundException("party id: " + partyId + " not found.");
-
+        
         var program = rec.current as Affiliation<U>;
         var partyExist = program.roster.FirstOrDefault(d => d.party != null && d.party.id == partyId);
         if (partyExist == null) {
@@ -219,8 +221,13 @@ namespace Store {
         var d = results.FirstOrDefault();
         if (d == null) return null;
         var rec = makeRecord(d);
+        // Find the last descendant of Affiliation<T> that derived from Model.
+        // For example, T could be a class that derived from another class that derived from Affiliation<T>.  "C : B" where "B : Affiliation<T>"
+        System.Reflection.TypeInfo ty = rec.current.GetType();        
+        List<Type> baseTypes = ty.InheritsFrom();
+        var affiliationWrapper = baseTypes.TakeWhile(t => t != typeof(Model)).LastOrDefault();
         // "party" of Participant and is unknown at runtime.
-        if (rec.current.GetType().BaseType.Name == "Affiliation`1" && typeOfParty != null) convertPartyToType(rec.current.roster, typeOfParty);
+        if (affiliationWrapper != null && affiliationWrapper.Name == "Affiliation`1" && typeOfParty != null) convertPartyToType(rec.current.roster, typeOfParty);
         if (typeof(U) == typeof(T)) return rec.current;
         return rec;
       }

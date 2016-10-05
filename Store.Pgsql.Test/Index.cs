@@ -339,6 +339,32 @@ namespace Store.Pgsql.Test {
 
         it["the counts for the list of affiliation of a droid before replacing it 3 times with the same affiliation and proves the save function is doing a replace and not a concat"] = () => afterAllianceCount.should(count => count == beforeAllianceCount);
       };
+
+      describe["the party object is strongly typed even if it is from a derived affiliation of a derived affiliation"] = () => {
+        string someVersion = "v$12345678";
+        before = () => {
+          //Create a Affiliation that is derived from the Empire called FirstOrder
+          ServiceProvider.Instance.Singleton<Client<FirstOrder>>(() => new Client<FirstOrder>(dbContext));
+          ServiceProvider.Instance.Singleton<Client<DroidExtended>>(() => new Client<DroidExtended>(dbContext));
+          firstOrderClient = ServiceProvider.Instance.GetService<Client<FirstOrder>>();
+          var firstOrder = new FirstOrder { id = "first-order", name = "The First Order", ts = DateTime.Now, roster = { } };
+
+          firstOrderClient.save<FirstOrder>(someVersion, firstOrder);
+
+          var droidExtendedClient = ServiceProvider.Instance.GetService<Client<DroidExtended>>();
+          var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now, language = "None" };
+          droidExtendedClient.save(someVersion, droidExtended);
+          firstOrderClient.associate<ParticipantExtended, DroidExtended>(someVersion, "first-order", droidExtended.id);
+        };
+        act = () => {
+          // Passing a "party" Type to an derived Affiliation and check that the party is a DroidExtended and not a dynamic type
+          var firstOrderObj = firstOrderClient.one<Record<FirstOrder>>(someVersion, "id", "first-order", typeof(DroidExtended));
+          dynamicObject = firstOrderObj.current.roster.FirstOrDefault(d => d.party.id == "2-1B").party;          
+        };
+
+        it["the party object should be a type of DroidExtended"] = () => dynamicObject.GetType().should(t => t == typeof(DroidExtended));
+      };
+
     }
 
     private DBContext dbContext;
@@ -346,6 +372,7 @@ namespace Store.Pgsql.Test {
     private DroidClient<Droid> droidClientA;
     private DroidClient<Droid> droidClientB;
     private EmpireClient<Empire> empireClient;
+    private Client<FirstOrder> firstOrderClient;
     private Empire empire;
     private Droid droid;
     private EmpireExtended empireExtended;
@@ -357,6 +384,7 @@ namespace Store.Pgsql.Test {
     private PersonnelClient<Personnel> personnelClient;
     private Personnel personnel;
     private Record<Personnel> recordOfPersonnel;
+    private object dynamicObject;
   }
 
   class Index {
@@ -366,18 +394,21 @@ namespace Store.Pgsql.Test {
       string someVersion = "v$12345678";
 
       var dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
+      // ----------------------------------------------------------------------------------------------------------
       // ServiceProvider.Instance.Singleton<Client<Personnel>>(() => new Client<Personnel>(dbContext));
       // var pclient = ServiceProvider.Instance.GetService<Client<Personnel>>();
       // pclient.save("v$12345678", new Personnel { id = "0", name = "abc123", ts = DateTime.Now });
       // var p = pclient.one<Personnel>("v$0", "id", "taoh02");
       // var l = pclient.list("v$0", 0, 10);
 
+      // ----------------------------------------------------------------------------------------------------------
       ServiceProvider.Instance.Singleton<VersionControlManager>(() => new VersionControlManager(dbContext));
       // var vc = ServiceProvider.Instance.GetService<VersionControlManager>();
       // var vcs = vc.getVersionControls();
       // var vcs1 = vc.getVersionControls().Where(d => d.name == foo_bar_1).ToList();
       // vc.createNewVersionControl(foo_bar_1);
 
+      // ----------------------------------------------------------------------------------------------------------
       // Create an Affiliation
       // ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(dbContext));
       // var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
@@ -392,33 +423,52 @@ namespace Store.Pgsql.Test {
       // var empireObj = empireClient.one<Record<Empire>>(someVersion, "id", "empire");
       // empireClient.associate<Participant, Droid>(someVersion, empireObj.id, droid.id);
 
+      // ----------------------------------------------------------------------------------------------------------
       // Create an extended Affiliation
-      ServiceProvider.Instance.Singleton<Client<EmpireExtended>>(() => new Client<EmpireExtended>(dbContext));
-      var empireExtendedClient = ServiceProvider.Instance.GetService<Client<EmpireExtended>>();
-      var badRosterExtended = new List<ParticipantExtended>();
-      var empireExtended = new EmpireExtended { id = "empire", roster = badRosterExtended, ts = DateTime.Now };
-      empireExtendedClient.save(someVersion, empireExtended);
+      // ServiceProvider.Instance.Singleton<Client<EmpireExtended>>(() => new Client<EmpireExtended>(dbContext));
+      // var empireExtendedClient = ServiceProvider.Instance.GetService<Client<EmpireExtended>>();
+      // var badRosterExtended = new List<ParticipantExtended>();
+      // var empireExtended = new EmpireExtended { id = "empire", roster = badRosterExtended, ts = DateTime.Now };
+      // empireExtendedClient.save(someVersion, empireExtended);
       // Associate something that was also extended to that extended affiliation
-      ServiceProvider.Instance.Singleton<DroidClient<DroidExtended>>(() => new DroidClient<DroidExtended>(dbContext));
-      var droidExtendedClient = ServiceProvider.Instance.GetService<DroidClient<DroidExtended>>();
-      var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now, language = "None" };
-      droidExtendedClient.save(someVersion, droidExtended);
+      // ServiceProvider.Instance.Singleton<DroidClient<DroidExtended>>(() => new DroidClient<DroidExtended>(dbContext));
+      // var droidExtendedClient = ServiceProvider.Instance.GetService<DroidClient<DroidExtended>>();
+      // var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now, language = "None" };
+      // droidExtendedClient.save(someVersion, droidExtended);
 
-      var empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire");
-      empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+      // var empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire");
+      // empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
 
-      // Passing a "party" Type to an Affiliation 
-      empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire", typeof(DroidExtended));
-
+      // Passing a "party" Type to an Affiliation and check that the party is a DroidExtended and not a dynamic type
+      // empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire", typeof(DroidExtended));
+      
       // Associate again 3 times and check for dupes
-      foreach(int i in Enumerable.Range(1, 3)) {
-        empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
-      }
-      empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+      // foreach(int i in Enumerable.Range(1, 3)) {
+      //   empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+      // }
+      // empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
 
       // Disassociate from an Affiliation
-      empireExtendedClient.disassociate<ParticipantExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+      // empireExtendedClient.disassociate<ParticipantExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
 
+      // ----------------------------------------------------------------------------------------------------------
+      //Create a Affiliation that is derived from the Empire called FirstOrder
+      ServiceProvider.Instance.Singleton<Client<FirstOrder>>(() => new Client<FirstOrder>(dbContext));
+      ServiceProvider.Instance.Singleton<Client<DroidExtended>>(() => new Client<DroidExtended>(dbContext));
+      var firstOrderClient = ServiceProvider.Instance.GetService<Client<FirstOrder>>();
+      var firstOrder = new FirstOrder { id = "first-order", name = "The First Order", ts = DateTime.Now, roster = { } };
+
+      firstOrderClient.save<FirstOrder>(someVersion, firstOrder);
+
+      var droidExtendedClient = ServiceProvider.Instance.GetService<Client<DroidExtended>>();
+      var droidExtended = new DroidExtended { id = "2-1B", name = "2-1B", ts = DateTime.Now, language = "None" };
+      droidExtendedClient.save(someVersion, droidExtended);
+      firstOrderClient.associate<ParticipantExtended, DroidExtended>(someVersion, "first-order", droidExtended.id);
+
+      // Passing a "party" Type to an derived Affiliation and check that the party is a DroidExtended and not a dynamic type
+      var firstOrderObj = firstOrderClient.one<Record<FirstOrder>>(someVersion, "id", "first-order", typeof(DroidExtended));
+
+      // ----------------------------------------------------------------------------------------------------------
       // Create List<IModel> as attribute of Model and associate it with Affiliation
       ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(dbContext));
       var empireClient = ServiceProvider.Instance.GetService<EmpireClient<Empire>>();
@@ -447,6 +497,7 @@ namespace Store.Pgsql.Test {
         droidClient.save(someVersion, droid);
       }
       allianceCount = droid.alliance.Count();
+      // ----------------------------------------------------------------------------------------------------------
 
       /**
        * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll
