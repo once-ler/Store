@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Pgsql", "Store.Pgsql\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Pgsql.Test", "Store.Pgsql.Test\Store.Pgsql.Test.csproj", "{2F0939A7-3606-466E-8FE4-1E3736265F3A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Storage", "Store.Storage\Store.Storage.csproj", "{ED21115B-8E08-4CC1-8761-34842174BE8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Storage.Pgsql", "Store.Storage.Pgsql\Store.Storage.Pgsql.csproj", "{CC371F81-9AA3-497F-8809-459EC07A0C69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{2F0939A7-3606-466E-8FE4-1E3736265F3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F0939A7-3606-466E-8FE4-1E3736265F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F0939A7-3606-466E-8FE4-1E3736265F3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED21115B-8E08-4CC1-8761-34842174BE8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED21115B-8E08-4CC1-8761-34842174BE8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED21115B-8E08-4CC1-8761-34842174BE8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED21115B-8E08-4CC1-8761-34842174BE8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC371F81-9AA3-497F-8809-459EC07A0C69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC371F81-9AA3-497F-8809-459EC07A0C69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC371F81-9AA3-497F-8809-459EC07A0C69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC371F81-9AA3-497F-8809-459EC07A0C69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

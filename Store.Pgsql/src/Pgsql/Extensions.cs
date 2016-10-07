@@ -87,6 +87,7 @@ namespace Store {
         return e;
       }
 
+      /*
       /// <summary>
       /// Gets the final descendant Type of a derived class.
       /// </summary>
@@ -118,6 +119,7 @@ namespace Store {
         }
         return types;
       }
+      */
 
     }    
   }  
