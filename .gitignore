@@ -14,3 +14,4 @@ packages/FastMember*
 **/bin
 **/obj
 Test.cs
+packages*/
