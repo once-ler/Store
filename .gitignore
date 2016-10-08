@@ -8,6 +8,8 @@ webserver/node_modules
 packages/Newtonsoft.Json*
 packages/Npgsql*
 packages/nspec*
+packages/GraphQL*
+packages/FastMember*
 *.suo
 **/bin
 **/obj
