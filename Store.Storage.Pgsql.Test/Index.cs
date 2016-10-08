@@ -7,11 +7,11 @@ using NSpec;
 using Store.Interfaces;
 using Store.Models;
 using Store.IoC;
-using Store.Pgsql;
-using Store.Pgsql.Test.fixtures.Models;
-using Store.Pgsql.Test.fixtures.Clients;
+using Store.Storage.Pgsql;
+using Store.Storage.Pgsql.Test.fixtures.Models;
+using Store.Storage.Pgsql.Test.fixtures.Clients;
 
-namespace Store.Pgsql.Test {
+namespace Store.Storage.Pgsql.Test {
 
   class describe_store_pgsql : nspec {
 

@@ -1,7 +1,7 @@
 ﻿using Store.Models;
-using Store.Pgsql.Test.fixtures.Models;
+using Store.Storage.Pgsql.Test.fixtures.Models;
 
-namespace Store.Pgsql.Test.fixtures {
+namespace Store.Storage.Pgsql.Test.fixtures {
   namespace Clients {
 
     internal sealed class DroidClient<T> : Client<T> where T : Droid, new() {

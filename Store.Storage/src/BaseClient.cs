@@ -14,7 +14,7 @@ using Store.Storage.Data;
 namespace Store {
   namespace Storage {
 
-    public class BaseClient<T> where T : class, IModel, new() {
+    public abstract class BaseClient<T> where T : class, IModel, new() {
 
       public BaseClient(DBContext _dbContext) {
         dbContext = _dbContext;
@@ -51,9 +51,7 @@ namespace Store {
       /// <param name="version"></param>
       /// <param name="doc"></param>
       /// <returns></returns>
-      public virtual U save<U>(string version, U doc) where U : class {
-        throw new NotImplementedException("save is not defined.");
-      }
+      public abstract U save<U>(string version, U doc) where U : class;
       
       public Record<T> replaceFromHistory(string version, string recordId, string historyId) {
         var rec = getOneRecord<Record<T>>(version, "id", recordId);
@@ -164,9 +162,8 @@ namespace Store {
       /// <param name="version"></param>
       /// <param name="store"></param>
       /// <returns></returns>
-      protected virtual string createStore(string version, string store) {
-        throw new NotImplementedException("createStore is not defined.");
-      }
+      protected abstract string createStore(string version, string store);
+
       protected string resolveTypeToString<U>() {
         if (typeof(U) == typeof(Record<T>)) return typeof(T).Name.ToLower();
         if (typeof(U).IsGenericType == true) return typeof(U).GetGenericArguments().FirstOrDefault().Name.ToLower();
@@ -186,9 +183,7 @@ namespace Store {
       /// <param name="value"></param>
       /// <param name="typeOfParty"></param>
       /// <returns></returns>
-      protected virtual U getOneRecord<U>(string version, string field, string value, Type typeOfParty = null) where U : class {
-        throw new NotImplementedException("getOneRecord<U> is not defined.");
-      }
+      protected abstract U getOneRecord<U>(string version, string field, string value, Type typeOfParty = null) where U : class;
 
       /// <summary>
       /// getOneRecord must be overridden.
@@ -198,9 +193,7 @@ namespace Store {
       /// <param name="field"></param>
       /// <param name="value"></param>
       /// <returns></returns>
-      protected virtual dynamic getOneRecord(string version, string typeOfStore, string field, string value) {
-        throw new NotImplementedException("getOneRecord is not defined.");
-      }
+      protected abstract dynamic getOneRecord(string version, string typeOfStore, string field, string value);
       
       protected void recursePopulate(string version, object doc) {
         var props = doc.GetType().GetProperties();

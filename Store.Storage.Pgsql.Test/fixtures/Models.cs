@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Store.Interfaces;
 using Store.Models;
 
-namespace Store.Pgsql.Test.fixtures {
+namespace Store.Storage.Pgsql.Test.fixtures {
   namespace Models {
 
     public class Personnel : Model { }
