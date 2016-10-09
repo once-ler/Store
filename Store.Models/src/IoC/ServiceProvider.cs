@@ -5,7 +5,9 @@ namespace Store.IoC {
     T GetService<T>();
     object GetStore(string typeOfStore);
     Type GetType(string typeName);
+    dynamic Get(string typeName);
     void Register(string typeName, Type type);
+    void Register(string typeName, dynamic instance);
     void Register<T>();
     void Register<T>(Func<T> instanceCreator);
     void Singleton<T>(T instance);
@@ -78,6 +80,17 @@ namespace Store.IoC {
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <param name="o"></param>
+    public void Register(string typeName, dynamic o) {
+      lock (locker) {
+        container.Register(typeName, o);
+      }
+    }   
+
+    /// <summary>
     /// Try adding instance of type in Key Value store.
     /// If it exists, error will be thrown, but we continue since we actually want to create a new instance.
     /// </summary>
@@ -132,6 +145,15 @@ namespace Store.IoC {
     /// <returns></returns>
     public Type GetType(string typeName) {
       return container.GetType(typeName);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <returns></returns>
+    public dynamic Get(string typeName) {
+      return container.Get(typeName);
     }
   }  
 }

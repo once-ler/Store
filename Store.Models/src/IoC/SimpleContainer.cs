@@ -9,7 +9,9 @@ namespace Store.IoC {
     T Get<T>();
     object GetStore(string typeOfStore);
     Type GetType(string typeName);
+    dynamic Get(string typeName);
     void Register(string typeName, Type type);
+    void Register(string typeName, dynamic instance);
     void Register<TService>();
     void Register<TService>(Func<TService> instanceCreator);
     void Register<TService, TImpl>() where TImpl : TService;
@@ -23,6 +25,7 @@ namespace Store.IoC {
   public class SimpleContainer : ISimpleContainer {
     private readonly Dictionary<Type, Func<object>> _registrations = new Dictionary<Type, Func<object>>();
     private readonly Dictionary<string, Func<Type>> _registrationsByName = new Dictionary<string, Func<Type>>();
+    private readonly Dictionary<string, Func<object>> _registrationsInstanceByName = new Dictionary<string, Func<object>>();
 
     /// <summary>
     /// 
@@ -46,6 +49,17 @@ namespace Store.IoC {
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="typeName"></param>
+    /// <param name="instance"></param>
+    public void Register(string typeName, dynamic instance) {
+      Func<object> f1;
+      _registrationsInstanceByName.TryGetValue(typeName, out f1);
+      if (f1 == null) _registrationsInstanceByName.Add(typeName, () => instance);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     /// <typeparam name="TService"></typeparam>
     /// <typeparam name="TImpl"></typeparam>
     public void Register<TService, TImpl>() where TImpl : TService {
@@ -63,7 +77,7 @@ namespace Store.IoC {
     public void Register<TService>(Func<TService> instanceCreator) {
       _registrations.Add(typeof(TService), () => instanceCreator());
     }
-
+    
     /// <summary>
     /// 
     /// </summary>
@@ -157,6 +171,17 @@ namespace Store.IoC {
         return f();
       }
       return null;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <returns></returns>
+    public dynamic Get(string typeName) {
+      Func<object> f1;
+      _registrationsInstanceByName.TryGetValue(typeName, out f1);
+      return f1;
     }
 
     /// <summary>
