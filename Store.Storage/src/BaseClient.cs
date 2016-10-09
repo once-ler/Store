@@ -14,24 +14,39 @@ using Store.Storage.Data;
 namespace Store {
   namespace Storage {
 
-    public abstract class BaseClient<T> where T : class, IModel, new() {
+    public abstract class BaseClient<T> : IStore<T> where T : class, IModel, new() {
 
       public BaseClient(DBContext _dbContext) {
         dbContext = _dbContext;
       }
       
-      public List<Record<T>> list(string sql) {
-        List<Record<T>> list = new List<Record<T>>();
-        var runner = new CommandRunner(dbConnection);
-        var results = runner.ExecuteDynamic(sql, null);
+      /// <summary>
+      /// list must be overridden.
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="offset"></param>
+      /// <param name="limit"></param>
+      /// <returns></returns>
+      public abstract List<Record<T>> list(string version, int offset, int limit);
 
-        foreach (var d in results) {
-          var rec = makeRecord(d);
-          list.Add(rec);
-        }
-        return list;
-      }
+      /// <summary>
+      /// save must be overridden.
+      /// </summary>
+      /// <typeparam name="U"></typeparam>
+      /// <param name="version"></param>
+      /// <param name="doc"></param>
+      /// <returns></returns>
+      public abstract U save<U>(string version, U doc) where U : class;
 
+      /// <summary>
+      /// search must be overridden.
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="field"></param>
+      /// <param name="search"></param>
+      /// <returns></returns>
+      public abstract List<Record<T>> search(string version, string field, string search);
+      
       public U one<U>(string version, string field, string value, Type typeOfParty = null) where U : class {
         var rec = getOneRecord<U>(version, field, value, typeOfParty);
         if (rec == null) throw new Exception("IModel for field: " + field + " and value: " + value + " not found.");
@@ -44,15 +59,6 @@ namespace Store {
         return rec;
       }
 
-      /// <summary>
-      /// save must be overridden.
-      /// </summary>
-      /// <typeparam name="U"></typeparam>
-      /// <param name="version"></param>
-      /// <param name="doc"></param>
-      /// <returns></returns>
-      public abstract U save<U>(string version, U doc) where U : class;
-      
       public Record<T> replaceFromHistory(string version, string recordId, string historyId) {
         var rec = getOneRecord<Record<T>>(version, "id", recordId);
         if (rec == null) throw new Exception("Record id: " + recordId + " not found.");
@@ -64,18 +70,6 @@ namespace Store {
 
         // Deque selected <This should be done on save()!>
         return save(version, rec);
-      }
-
-      public List<Record<T>> search(string sql) {
-        List<Record<T>> list = new List<Record<T>>();
-        var runner = new CommandRunner(dbConnection);
-        var results = runner.ExecuteDynamic(sql, null);
-
-        foreach (var d in results) {
-          var rec = makeRecord(d);
-          list.Add(rec);
-        }
-        return list;
       }
 
       public Record<T> makeRecord(dynamic d) {
@@ -141,20 +135,15 @@ namespace Store {
       }
 
       /*
-       * Protected properties 
+       * Protected Methods
        */
-      protected DbConnection dbConnection;
-      protected DBContext dbContext;
-      protected enum OperatonResult { Succeeded = 1, Failed = 0 };
 
       /// <summary>
       /// createSchema must be overridden.
       /// </summary>
       /// <param name="version"></param>
       /// <returns></returns>
-      protected virtual string createSchema(string version) {
-        throw new NotImplementedException("createSchema is not defined.");
-      }
+      protected abstract string createSchema(string version);
 
       /// <summary>
       /// createStore must be overridden
@@ -164,15 +153,13 @@ namespace Store {
       /// <returns></returns>
       protected abstract string createStore(string version, string store);
 
-      protected string resolveTypeToString<U>() {
-        if (typeof(U) == typeof(Record<T>)) return typeof(T).Name.ToLower();
-        if (typeof(U).IsGenericType == true) return typeof(U).GetGenericArguments().FirstOrDefault().Name.ToLower();
-        return typeof(U).Name.ToLower();
-      }
-
-      protected string upsertStore(string sql) {
-        return runSql(sql);
-      }
+      /// <summary>
+      /// upsertStore must be overriden.
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="rec"></param>
+      /// <returns></returns>
+      protected abstract string upsertStore(string version, Record<T> rec);
 
       /// <summary>
       /// getOneRecord<U> must be overridden.
@@ -194,7 +181,13 @@ namespace Store {
       /// <param name="value"></param>
       /// <returns></returns>
       protected abstract dynamic getOneRecord(string version, string typeOfStore, string field, string value);
-      
+
+      protected string resolveTypeToString<U>() {
+        if (typeof(U) == typeof(Record<T>)) return typeof(T).Name.ToLower();
+        if (typeof(U).IsGenericType == true) return typeof(U).GetGenericArguments().FirstOrDefault().Name.ToLower();
+        return typeof(U).Name.ToLower();
+      }
+
       protected void recursePopulate(string version, object doc) {
         var props = doc.GetType().GetProperties();
 
@@ -226,6 +219,9 @@ namespace Store {
         }
       }
 
+      /*
+       * NewSQL Specific Methods
+       */
       protected string runner(params Func<string>[] actions) { List<string> results = new List<string>(); foreach (var act in actions) results.Add(act()); return string.Join(",", results); }
 
       protected string tryCatch(Action act) { try { act(); } catch (Exception e) { return e.Message; } return OperatonResult.Succeeded.ToString("F"); }
@@ -233,6 +229,13 @@ namespace Store {
       protected string runSql(string sql) {
         return tryCatch(() => { var runner = new CommandRunner(dbConnection); runner.Transact(new DbCommand[] { runner.BuildCommand(sql, null) }); });
       }
+
+      /*
+       * Protected Properties 
+       */
+      protected DbConnection dbConnection;
+      protected DBContext dbContext;
+      protected enum OperatonResult { Succeeded = 1, Failed = 0 };
     }
 
   }

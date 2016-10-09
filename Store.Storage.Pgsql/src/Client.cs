@@ -21,9 +21,17 @@ namespace Store.Storage {
         dbConnection = fac.Get(_dbContext);
       }
       
-      public List<Record<T>> list(string version, int offset, int limit) {
+      public override List<Record<T>> list(string version, int offset, int limit) {
         var sql = string.Format("select * from {0}.{1} order by id desc offset {2} limit {3}", new object[] { version, this.resolveTypeToString<T>(), offset.ToString(), limit.ToString() });
-        return base.list(sql);
+        List<Record<T>> list = new List<Record<T>>();
+        var runner = new CommandRunner(dbConnection);
+        var results = runner.ExecuteDynamic(sql, null);
+
+        foreach (var d in results) {
+          var rec = makeRecord(d);
+          list.Add(rec);
+        }
+        return list;
       }
       
       public override U save<U>(string version, U doc) {
@@ -60,9 +68,17 @@ namespace Store.Storage {
         return typeof(U) == typeof(T) ? destRec.current as U : destRec as U;
       }
       
-      public List<Record<T>> search(string version, string field, string search) {
+      public override List<Record<T>> search(string version, string field, string search) {
         var sql = string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' limit 10", new object[] { version, this.resolveTypeToString<T>(), field, search });
-        return base.search(sql);       
+        List<Record<T>> list = new List<Record<T>>();
+        var runner = new CommandRunner(dbConnection);
+        var results = runner.ExecuteDynamic(sql, null);
+
+        foreach (var d in results) {
+          var rec = makeRecord(d);
+          list.Add(rec);
+        }
+        return list;
       }
       
       /*
@@ -79,7 +95,7 @@ namespace Store.Storage {
         );
       }
       
-      protected string upsertStore(string version, Record<T> rec) {
+      protected override string upsertStore(string version, Record<T> rec) {
         // Serialize
         var currentJson = Newtonsoft.Json.JsonConvert.SerializeObject(rec.current);
         var historyJson = Newtonsoft.Json.JsonConvert.SerializeObject(rec.history);
@@ -94,7 +110,7 @@ namespace Store.Storage {
           historyJson
         );
 
-        return base.upsertStore(sql);
+        return runSql(sql);
       }
 
       protected override U getOneRecord<U>(string version, string field, string value, Type typeOfParty = null) {

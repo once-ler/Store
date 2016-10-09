@@ -105,6 +105,7 @@ namespace Store {
       /// <param name="version">The VersionControl identifier for this IModel.</param>
       /// <param name="field">The key field to search.  If nested, use dot notation.</param>
       /// <param name="value">The value for the key field to search.</param>
+      /// <param name="typeOfParty">Provided a type, the "party" attribute of a Participant will be attempted to convert to that type.</param>
       /// <returns>One record of IModel or just IModel if exists.  If no IModel exists, error will be thrown.</returns>
       U one<U>(string version, string field, string value, Type typeOfParty = null) where U : class;
 
@@ -125,7 +126,7 @@ namespace Store {
       /// <param name="version">The VersionControl identifier for this IModel.</param>
       /// <param name="recordId">The record identifier of Record<IModel> that the user wants to update.</param>
       /// <param name="historyId">The identifier of a historical IModel that the user wants to use as the current one.</param>
-      /// <returns>Record<IModel> of the attempted replacement of the current IModel with one an historical one.</returns>
+      /// <returns>Record{IModel} of the attempted replacement of the current IModel with one an historical one.</returns>
       /// Note: If there was an error in creating, Exception will be thrown.
       /// It is up to you to catch it.
       Record<T> replaceFromHistory(string version, string recordId, string historyId);
