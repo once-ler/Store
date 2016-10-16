@@ -1,7 +1,6 @@
 ﻿using System;
 using GraphQL.Types;
 using FastMember;
-using Store.Interfaces;
 using Store.Models;
 using Store.IoC;
 
@@ -11,29 +10,13 @@ namespace Store.GraphQL {
   /// Assumption is that all required dependent types have been registered into the ServiceProvider.Instance IoC
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public class Type<T> where T : Model {
-    public Type() {
-      string tyName = typeof(T).Name;
-      dynamic _store = ServiceProvider.Instance.GetStore(tyName);
-      store = _store as IStore<T>;
-    }
+  public class Type<T> : Base<T> where T : Model {
 
-    public Type(string tyName) {
-      dynamic _store = ServiceProvider.Instance.GetStore(tyName);
-      store = _store as IStore<T>;
-    }
+    public Type() : base() { }
+    public Type(string tyName) : base(tyName) { }
+    public Type(Type ty) : base(ty) { }
 
-    public Type(Type ty) {
-      string tyName = ty.GetType().Name;
-      dynamic _store = ServiceProvider.Instance.GetStore(tyName);
-      store = _store as IStore<T>;
-    }
-
-    public Type(IStore<T> _store) {
-      store = _store;
-    }
-
-    public ObjectGraphType CreateGraphQLType() {
+    public override ObjectGraphType CreateGraphQLType() {
       var objectType = TypeAccessor.Create(typeof(T));
 
       var o = new ObjectGraphType<T>();
@@ -41,8 +24,8 @@ namespace Store.GraphQL {
 
       // Create an anonymous type
       var gqlObj = new ObjectGraphType();
-      gqlObj.Name = typeof(T).ToString();
-      gqlObj.IsTypeOf = (value) => value is T;
+      gqlObj.Name = type.Name + "Type";
+      gqlObj.IsTypeOf = (value) => value.GetType() == type.GetType();
 
       var members = objectType.GetMembers();
       foreach (var f in members) {
@@ -72,8 +55,6 @@ namespace Store.GraphQL {
       }
       return gqlObj;
     }
-
-    private IStore<T> store;
   }
 
   /* GraphQL Scalars */
