@@ -35,8 +35,10 @@ namespace Store.Storage {
       }
       
       public override U save<U>(string version, U doc) {
-        var id = typeof(U) == typeof(T) ? (doc as Model).id : ((doc as Record<T>).current as Model).id;
-        
+        var dy = doc as dynamic;
+        // var id = typeof(U) == typeof(T) ? (doc as Model).id : ((doc as Record<T>).current as Model).id;
+        var id = typeof(U) == typeof(T) ? dy.id : dy.current.id;
+
         // Always fetch current record from storage
         Record<T> destRec = null;
         try {
@@ -53,7 +55,8 @@ namespace Store.Storage {
 
         // Merge the incoming source doc to the incumbent doc.
         T o = merge(destRec.current, src);
-        (o as Model).ts = DateTime.Now;
+        // (o as Model).ts = DateTime.Now;
+        (o as dynamic).ts = DateTime.Now;
 
         // Current is now merged
         destRec.current = o;
