@@ -1,37 +1,79 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using GraphQL;
 using GraphQL.Types;
-using GraphQL.Language.AST;
+using FastMember;
 using Store.Interfaces;
 using Store.Models;
 using Store.IoC;
 
-namespace Store.GraphQLSupport {
+namespace Store.GraphQL {
 
-  public static class Extensions {
-    private static Dictionary<Type, Type> primitiveToGraphQLDict = new Dictionary<Type, Type>{
-      { typeof(string), typeof(GraphQL.Types.StringGraphType) },
-      { typeof(bool), typeof(GraphQL.Types.BooleanGraphType) },
-      { typeof(DateTime), typeof(GraphQL.Types.DateGraphType) },
-      { typeof(byte), typeof(GraphQL.Types.IntGraphType) },
-      { typeof(short), typeof(GraphQL.Types.IntGraphType) },
-      { typeof(int), typeof(GraphQL.Types.IntGraphType) },
-      { typeof(long), typeof(GraphQL.Types.IntGraphType) },
-      { typeof(Single), typeof(GraphQL.Types.FloatGraphType) },
-      { typeof(double), typeof(GraphQL.Types.FloatGraphType) },
-      { typeof(decimal), typeof(GraphQL.Types.DecimalGraphType) }
-    };
-
-    public static Type FromPrimitiveToGraphQLType(this Type inTy) {
-      Type outTy = null;
-      primitiveToGraphQLDict.TryGetValue(inTy, out outTy);
-      return outTy;
+  /// <summary>
+  /// Assumption is that all required dependent types have been registered into the ServiceProvider.Instance IoC
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
+  public class Type<T> where T : Model {
+    public Type() {
+      string tyName = typeof(T).Name;
+      dynamic _store = ServiceProvider.Instance.GetStore(tyName);
+      store = _store as IStore<T>;
     }
+
+    public Type(string tyName) {
+      dynamic _store = ServiceProvider.Instance.GetStore(tyName);
+      store = _store as IStore<T>;
+    }
+
+    public Type(Type ty) {
+      string tyName = ty.GetType().Name;
+      dynamic _store = ServiceProvider.Instance.GetStore(tyName);
+      store = _store as IStore<T>;
+    }
+
+    public Type(IStore<T> _store) {
+      store = _store;
+    }
+
+    public ObjectGraphType CreateGraphQLType() {
+      var objectType = TypeAccessor.Create(typeof(T));
+
+      var o = new ObjectGraphType<T>();
+      var p = TypeAccessor.Create(o.GetType());
+
+      // Create an anonymous type
+      var gqlObj = new ObjectGraphType();
+      gqlObj.Name = typeof(T).ToString();
+      gqlObj.IsTypeOf = (value) => value is T;
+
+      var members = objectType.GetMembers();
+      foreach (var f in members) {
+        // Add to gqlObj
+        var primiTy = f.Type.FromPrimitiveToGraphQLType();
+        if (primiTy != null) {
+          var fld = new FieldType { Name = f.Name, Type = primiTy };
+          if (fld.Type == typeof(DateGraphType)) {
+            fld.DefaultValue = DateTime.Now;
+          }
+          gqlObj.AddField(fld);
+        } else {
+          // If it's in the locator, we can add it
+          var anotherGqlType = ServiceProvider.Instance.GetType(f.Name + "Type");
+          var anotherType = ServiceProvider.Instance.GetType(f.Name);
+          if (anotherGqlType == null) {
+            // What about the originating type?
+            if (anotherType != null) {
+              // Create a GraphQL type for this type.
+              var aType = new Type<Model>(anotherType);
+              var aGqlType = aType.CreateGraphQLType();
+              var fld = new FieldType { Name = f.Name, Type = aGqlType.GetType() };
+              gqlObj.AddField(fld);
+            }
+          }
+        }
+      }
+      return gqlObj;
+    }
+
+    private IStore<T> store;
   }
 
   /* GraphQL Scalars */
@@ -66,22 +108,8 @@ namespace Store.GraphQLSupport {
   GraphQLUnionType
   GraphQLInputObjectType   
   */
-  
-  // From graphql-dotnet docs
-  public class Droid {
-    public string id { get; set; }
-    public string name { get; set; }
-    public DateTime ts { get; set; }
-    public bool boolean { get; set; }
-    public byte integer1 { get; set; }
-    public short integer16 { get; set; }
-    public int integer { get; set; }
-    public long integer64 { get; set; }
-    public Single float4 { get; set; }
-    public double float8 { get; set; }
-    public decimal decimal16 { get; set; }    
-  }
 
+  /*
   public class StarWarsQuery : ObjectGraphType {
     public StarWarsQuery() {
       Name = "Query";
@@ -91,7 +119,8 @@ namespace Store.GraphQLSupport {
       );
     }
   }
-
+  */
+  /*
   public class DroidType : ObjectGraphType {
     public DroidType() {
       Name = "Droid";
@@ -100,26 +129,5 @@ namespace Store.GraphQLSupport {
       IsTypeOf = value => value is Droid;
     }
   }
-
-  /// <summary>
-  /// Assumption is that all required dependent types have been registered into the ServiceProvider.Instance IoC
-  /// </summary>
-  /// <typeparam name="T"></typeparam>
-  public class Type<T> where T : Model {
-
-    public Type(IStore<T> _store) {
-      store = _store;
-    }
-
-    public ObjectGraphType CreateGraphQLType() {
-
-      dynamic partyStore = ServiceProvider.Instance.GetStore("TypeName");
-      Type ty = ServiceProvider.Instance.GetType("");
-      // var party = partyStore.one<Record<M>>(version, "id", partyId);
-
-      return null;
-    }
-
-    private IStore<T> store;
-  }
+  */
 }
