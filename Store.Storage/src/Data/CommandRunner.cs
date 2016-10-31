@@ -45,6 +45,8 @@ namespace Store {
           DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
           var _conn = factory.CreateConnection();
 
+          // var _conn = conn;
+
           var cmd = BuildCommand(sql, args);
           cmd.Connection = _conn;
           //defer opening to the last minute
@@ -100,6 +102,7 @@ namespace Store {
         public DbCommand BuildCommand(string sql, params object[] args) {
           // var cmd = new DbCommand(sql);
           // var cmd = conn.CreateCommand();
+
           DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
           var cmd = factory.CreateCommand();
 
@@ -119,7 +122,7 @@ namespace Store {
           // conn.ConnectionString = this.ConnectionString;
           DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
           var _conn = factory.CreateConnection();
-
+          // var _conn = conn;
           using (_conn) {
             _conn.Open();
             using (var tx = _conn.BeginTransaction()) {
@@ -147,6 +150,7 @@ namespace Store {
           DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
           var _conn = factory.CreateConnection();
 
+          // var _conn = conn;
           using (_conn) {
             _conn.Open();
             var cmd = _conn.CreateCommand();

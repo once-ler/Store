@@ -46,6 +46,8 @@ namespace Store {
       /// <param name="search"></param>
       /// <returns></returns>
       public abstract List<Record<T>> search(string version, string field, string search);
+
+      public abstract int count(string version, string field = null, string search = null);
       
       public U one<U>(string version, string field, string value, Type typeOfParty = null) where U : class {
         var rec = getOneRecord<U>(version, field, value, typeOfParty);

@@ -365,6 +365,47 @@ namespace Store.Storage.Pgsql.Test {
         it["the party object should be a type of DroidExtended"] = () => dynamicObject.GetType().should(t => t == typeof(DroidExtended));
       };
 
+      describe["can count a collection"] = () => {
+        string someVersion = "v$12345678";
+        int count = 0;
+        before = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          droidClient.save(someVersion, droid);
+        };
+
+        describe["can count without a search filter"] = () => {
+          act = () => {
+            var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+            count = droidClient.count(someVersion);
+          };
+          it["the collection count is not zero"] = () => count.should_be_greater_than(0);
+        };
+
+        describe["can count with a search filter"] = () => {
+          act = () => {
+            var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+            count = droidClient.count(someVersion, "id", "2-1B");
+          };
+          it["the collection count should be one"] = () => count.should_be(1);
+        };
+      };
+
+      describe["can count a collection without search criteria"] = () => {
+        string someVersion = "v$12345678";
+        int count = 0;
+        before = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+          droidClient.save(someVersion, droid);
+        };
+        act = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          count = droidClient.count(someVersion);
+        };
+        it["the collection count is not zero"] = () => count.should_be_greater_than(0);
+      };
+
     }
 
     private DBContext dbContext;
@@ -500,7 +541,7 @@ namespace Store.Storage.Pgsql.Test {
       // ----------------------------------------------------------------------------------------------------------
 
       /**
-       * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Pgsql.Test\bin\Debug\Store.Pgsql.Test.dll
+       * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Storage.Pgsql.Test\bin\Debug\Store.Storage.Pgsql.Test.dll
        */
     }
   }

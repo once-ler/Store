@@ -145,19 +145,27 @@ namespace Store {
       /// Note: If there was an error in creating, Exception will be thrown.
       /// It is up to you to catch it.
       U save<U>(string version, U doc) where U : class;
-
+      
       /// <summary>
       /// Fetch IModel records for a VersionControl that meets the search criteria.
       /// Note:
-      /// 1. There is no wildcard search.  The value must be exact.
-      /// 2. By default, only 10 IModel records will be returned.
-      /// 3. By default, POSIX regex insensitive matching will be used.
+      /// 1. By default, only 10 IModel records will be returned.
+      /// 2. By default, POSIX regex insensitive matching will be used.
       /// </summary>
       /// <param name="version">The VersionControl identifier for this IModel.</param>
       /// <param name="field">The key field to search.  If nested, use dot notation.</param>
       /// <param name="search">The value for the key field to search.</param>
       /// <returns>Collection of Record<IModel> if successful.  Empty collection if failure.</returns>
       List<Record<T>> search(string version, string field, string search);
+
+      /// <summary>
+      /// Count IModel records for a VersionControl that meets the search criteria.
+      /// </summary>
+      /// <param name="version">The VersionControl identifier for this IModel.</param>
+      /// <param name="field">The key field to search.  If nested, use dot notation.</param>
+      /// <param name="search">The value for the key field to search.</param>
+      /// <returns>Count of records matching search criteria.</returns>
+      int count(string version, string field = null, string search = null);
 
       /// <summary>
       /// Associates a Model to an Affiliation object.
