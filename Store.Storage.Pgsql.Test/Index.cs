@@ -367,7 +367,7 @@ namespace Store.Storage.Pgsql.Test {
 
       describe["can count a collection"] = () => {
         string someVersion = "v$12345678";
-        int count = 0;
+        long count = 0;
         before = () => {
           var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
           var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
@@ -393,7 +393,7 @@ namespace Store.Storage.Pgsql.Test {
 
       describe["can count a collection without search criteria"] = () => {
         string someVersion = "v$12345678";
-        int count = 0;
+        long count = 0;
         before = () => {
           var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
           var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
@@ -520,6 +520,9 @@ namespace Store.Storage.Pgsql.Test {
       var empire = new Empire { id = "empire", roster = { }, ts = DateTime.Now };
       empireClient.save(someVersion, empire);
 
+      // Get a count
+      var count = empireClient.count(someVersion, "id", "empire");
+
       // Create a Droid
       var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
       // Assign an Affiliation to the droid
@@ -541,7 +544,7 @@ namespace Store.Storage.Pgsql.Test {
       // ----------------------------------------------------------------------------------------------------------
 
       /**
-       * packages\nspec.1.0.7\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Storage.Pgsql.Test\bin\Debug\Store.Storage.Pgsql.Test.dll
+       * packages\nspec.1.0.13\tools\NSpecRunner.exe C:\cygwin64\home\htao\Store\Store.Storage.Pgsql.Test\bin\Debug\Store.Storage.Pgsql.Test.dll
        */
     }
   }

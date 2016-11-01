@@ -84,14 +84,14 @@ namespace Store.Storage {
         return list;
       }
 
-      public override int count(string version, string field = null, string search = null) {
-        var sql = string.Format("select count(1) from {0}.{1}", new object[] { version, this.resolveTypeToString<T>() });
-        if (field != null && search != null) sql += string.Format(" where current->>'{2}' ~* '{3}'", new object[] { field, search });
+      public override long count(string version, string field = null, string search = null) {
+        var sql = string.Format("select count(1) count from {0}.{1}", new object[] { version, this.resolveTypeToString<T>() });
+        if (field != null && search != null) sql += string.Format(" where current->>'{0}' ~* '{1}'", new object[] { field, search });
 
         var runner = new CommandRunner(dbConnection);
         var results = runner.ExecuteDynamic(sql, null);
 
-        return results.FirstOrDefault();
+        return results.FirstOrDefault().count;
       }
 
       /*

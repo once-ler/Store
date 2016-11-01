@@ -165,7 +165,7 @@ namespace Store {
       /// <param name="field">The key field to search.  If nested, use dot notation.</param>
       /// <param name="search">The value for the key field to search.</param>
       /// <returns>Count of records matching search criteria.</returns>
-      int count(string version, string field = null, string search = null);
+      long count(string version, string field = null, string search = null);
 
       /// <summary>
       /// Associates a Model to an Affiliation object.
