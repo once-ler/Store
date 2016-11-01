@@ -11,6 +11,14 @@ namespace Store {
       public class CommandRunner {
         // public string ConnectionString { get; set; }
         private DbConnection conn;
+
+        private DbConnection createNewConnection() {
+          var _conn = Activator.CreateInstance(conn.GetType()) as DbConnection;
+          _conn.ConnectionString = conn.ConnectionString;
+          return _conn;
+        }
+
+        // private string ConnectionString;
         /// <summary>
         /// Constructor - takes a connection string name
         /// </summary>
@@ -39,14 +47,8 @@ namespace Store {
         /// Executes a typed query
         /// </summary>
         public DbDataReader OpenReader(string sql, params object[] args) {
-          // var conn = new T(this.ConnectionString);
-          // conn = new T();
-          // conn.ConnectionString = this.ConnectionString;
-          DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
-          var _conn = factory.CreateConnection();
-
-          // var _conn = conn;
-
+          var _conn = createNewConnection();
+          
           var cmd = BuildCommand(sql, args);
           cmd.Connection = _conn;
           //defer opening to the last minute
@@ -100,12 +102,7 @@ namespace Store {
         /// <param name="args">The parameters to match the @ notations</param>
         /// <returns></returns>
         public DbCommand BuildCommand(string sql, params object[] args) {
-          // var cmd = new DbCommand(sql);
-          // var cmd = conn.CreateCommand();
-
-          DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
-          var cmd = factory.CreateCommand();
-
+          var cmd = conn.CreateCommand();          
           cmd.CommandText = sql;
           cmd.AddParams(args);
           return cmd;
@@ -118,11 +115,8 @@ namespace Store {
         /// <returns></returns>
         public List<int> Transact(params DbCommand[] cmds) {
           var results = new List<int>();
-          // var conn = new T();
-          // conn.ConnectionString = this.ConnectionString;
-          DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
-          var _conn = factory.CreateConnection();
-          // var _conn = conn;
+          var _conn = createNewConnection();
+
           using (_conn) {
             _conn.Open();
             using (var tx = _conn.BeginTransaction()) {
@@ -145,12 +139,8 @@ namespace Store {
         }
 
         public void ExecuteCommand(string sql) {
-          // var conn = new T();
-          // conn.ConnectionString = this.ConnectionString;
-          DbProviderFactory factory = DbProviderFactories.GetFactory(conn);
-          var _conn = factory.CreateConnection();
+          var _conn = createNewConnection();
 
-          // var _conn = conn;
           using (_conn) {
             _conn.Open();
             var cmd = _conn.CreateCommand();
