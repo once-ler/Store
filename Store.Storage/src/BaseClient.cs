@@ -44,8 +44,10 @@ namespace Store {
       /// <param name="version"></param>
       /// <param name="field"></param>
       /// <param name="search"></param>
+      /// <param name="offset"></param>
+      /// <param name="limit"></param>
       /// <returns></returns>
-      public abstract List<Record<T>> search(string version, string field, string search);
+      public abstract List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10);
 
       public abstract long count(string version, string field = null, string search = null);
       

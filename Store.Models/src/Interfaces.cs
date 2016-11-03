@@ -145,7 +145,7 @@ namespace Store {
       /// Note: If there was an error in creating, Exception will be thrown.
       /// It is up to you to catch it.
       U save<U>(string version, U doc) where U : class;
-      
+
       /// <summary>
       /// Fetch IModel records for a VersionControl that meets the search criteria.
       /// Note:
@@ -155,8 +155,10 @@ namespace Store {
       /// <param name="version">The VersionControl identifier for this IModel.</param>
       /// <param name="field">The key field to search.  If nested, use dot notation.</param>
       /// <param name="search">The value for the key field to search.</param>
-      /// <returns>Collection of Record<IModel> if successful.  Empty collection if failure.</returns>
-      List<Record<T>> search(string version, string field, string search);
+      /// <param name="offset">The index from which the search results should start.</param>
+      /// <param name="limit">The limit of records to return.  Ideally, the limit should be realistic.</param>
+      /// <returns>Collection of Record{IModel} if successful.  Empty collection if failure.</returns>
+      List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10);
 
       /// <summary>
       /// Count IModel records for a VersionControl that meets the search criteria.

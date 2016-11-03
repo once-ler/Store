@@ -391,19 +391,38 @@ namespace Store.Storage.Pgsql.Test {
         };
       };
 
-      describe["can count a collection without search criteria"] = () => {
+      describe["can search with offset and limit"] = () => {
         string someVersion = "v$12345678";
-        long count = 0;
+        
         before = () => {
           var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
           var droid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
           droidClient.save(someVersion, droid);
         };
-        act = () => {
-          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
-          count = droidClient.count(someVersion);
+
+        describe["can search without limit and filter"] = () => {
+          List<Record<Droid>> list = new List<Record<Droid>>();
+          act = () => {
+            var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+            list = droidClient.search(someVersion, "id", "2-");
+          };
+          it["the collection should contain 1 record"] = () => list.Count().should_be(1);
         };
-        it["the collection count is not zero"] = () => count.should_be_greater_than(0);
+
+        describe["can search with a limit and filter"] = () => {
+          List<Record<Droid>> list = new List<Record<Droid>>();
+          before = () => {
+            var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+            var droid = new Droid { id = "R2-D2", name = "R2-D2", ts = DateTime.Now };
+            droidClient.save(someVersion, droid);
+          };
+
+          act = () => {
+            var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+            list = droidClient.search(someVersion, "id", "R2", 0, 1);
+          };
+          it["the collection should contain 1 record because limit was set to 1"] = () => list.Count().should_be(1);
+        };
       };
 
     }

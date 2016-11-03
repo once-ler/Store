@@ -71,8 +71,9 @@ namespace Store.Storage {
         return typeof(U) == typeof(T) ? destRec.current as U : destRec as U;
       }
       
-      public override List<Record<T>> search(string version, string field, string search) {
-        var sql = string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' limit 10", new object[] { version, this.resolveTypeToString<T>(), field, search });
+      public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10) {
+        if (limit < 0 || limit > 500) throw new NotSupportedException("The limit for search must be between 1 and 500.");
+        var sql = string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' offset {4} limit {5}", new object[] { version, this.resolveTypeToString<T>(), field, search, offset.ToString(), limit.ToString() });
         List<Record<T>> list = new List<Record<T>>();
         var runner = new CommandRunner(dbConnection);
         var results = runner.ExecuteDynamic(sql, null);
