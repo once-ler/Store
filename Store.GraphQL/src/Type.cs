@@ -23,7 +23,8 @@ namespace Store.GraphQL {
       var p = TypeAccessor.Create(o.GetType());
 
       // Create an anonymous type
-      var gqlObj = new ObjectGraphType();
+      // var gqlObj = new ObjectGraphType();
+      var gqlObj = new ObjectGraphType<T>();
       gqlObj.Name = type.Name + "Type";
       gqlObj.IsTypeOf = (value) => value.GetType() == type.GetType();
 
@@ -53,7 +54,12 @@ namespace Store.GraphQL {
           }
         }
       }
-      return gqlObj;
+
+      // Add GraphType to IoC
+      var ty = gqlObj.GetType();
+      ServiceProvider.Instance.Register(gqlObj.Name, ty);
+
+      return gqlObj as ObjectGraphType;
     }
   }
 

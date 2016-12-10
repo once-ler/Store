@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FastMember;
+using GraphQL;
 using GraphQL.Types;
+using GraphQL.Http;
 using Store.Models;
 using Store.Interfaces;
 using Store.IoC;
@@ -40,6 +43,25 @@ namespace Store.GraphQL {
 
   public class Index {
 
+    private static async void Run(Schema schema) {
+      var result = await new DocumentExecuter().ExecuteAsync(_ =>
+      {
+        _.Schema = schema;
+        _.Query = @"
+                query {
+                  one {
+                    id
+                    name
+                  }
+                }
+              ";
+      }).ConfigureAwait(false);
+
+      var json = new DocumentWriter(indent: true).Write(result);
+
+      Console.WriteLine(json);
+    }
+
     static void Main(string[] args) {
       
       // Must register Stores
@@ -48,7 +70,17 @@ namespace Store.GraphQL {
 
       // Test CreateObjectGraph
       var a = new Type<Droid>();
-      var gqlo  = a.CreateGraphQLType();      
+      var gqlo  = a.CreateGraphQLType();
+      // var glInstance = ServiceProvider.Instance.Get(typeof(Droid).Name + "Type");
+      
+      // Test Query
+      var q = new Query<Droid>();
+      var gqlq = q.CreateGraphQLType();
+
+      // Test Schema
+      var schema = new Schema { Query = gqlq };
+
+      Run(schema);
     }
 
     public void experiment() {
