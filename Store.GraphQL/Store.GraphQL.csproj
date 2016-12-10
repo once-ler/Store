@@ -37,12 +37,12 @@
       <HintPath>..\packages\FastMember.1.1.0\lib\net40\FastMember.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GraphQL, Version=0.12.3.556, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GraphQL.0.12.3.556\lib\net45\GraphQL.dll</HintPath>
+    <Reference Include="GraphQL, Version=0.14.0.633, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GraphQL.0.14.0.633\lib\net45\GraphQL.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GraphQLParser, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GraphQL-Parser.1.0.0\lib\net45\GraphQLParser.dll</HintPath>
+    <Reference Include="GraphQL-Parser, Version=2.0.0.17, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GraphQL-Parser.2.0.0\lib\net45\GraphQL-Parser.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
