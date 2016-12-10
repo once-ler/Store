@@ -17,6 +17,7 @@ namespace Store.Storage.Pgsql.Test {
 
     string foo_bar_1 = "foo bar 1";
     string foo_bar_2 = "foo bar 2";
+    string someVersion = "v$12345678";
 
     void before_each() {
       this.dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
@@ -109,7 +110,21 @@ namespace Store.Storage.Pgsql.Test {
         it["new version control created from an existing one should not be null"] = () => newVc2.should_not_be_null();
         it["new version control created from an existing one should have same name as inputted"] = () => newVc2.should(d => d.name == foo_bar_2);
         it["version control list has at least two item"] = () => versions.Count().should_be_greater_than(1);
-      };      
+      };
+      
+      describe["can explicitly create a version with user defined version id"] = () => {        
+        before = () => {
+          versions = p.getVersionControls();
+          newVc = versions.FirstOrDefault(d => d.id == someVersion);
+        };
+        act = () => {
+          if (newVc == null) {
+            var p1 = ServiceProvider.Instance.GetService<VersionControlManager>();
+            newVc = p1.createNewVersionControl(someVersion, "Some version name");
+          }
+        };
+        it["new version id should have same id user provided"] = () => newVc.id.should_be(someVersion);
+      };    
     }
 
     void describe_client() {
@@ -423,6 +438,21 @@ namespace Store.Storage.Pgsql.Test {
           };
           it["the collection should contain 1 record because limit was set to 1"] = () => list.Count().should_be(1);
         };
+      };
+
+      describe["when creating a new collection"] = () => {
+        var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+
+        before = () => {
+          var droid = new Droid { id = "R2-D2", name = "R2-D2", ts = DateTime.Now };
+          droidClient.save(someVersion, droid);
+        };
+
+        act = () => {
+          droid = droidClient.one<Droid>(someVersion, "id", "R2-D2");
+        };
+
+        it["the name of the droid"] = () => droid.name.should_be("R2-D2");
       };
 
     }

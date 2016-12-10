@@ -32,7 +32,15 @@ namespace Store {
       /// <returns></returns>
       public abstract List<VersionControl> getVersionControls();
 
-      public abstract VersionControl createVersionControl(string fromVersion, string friendlyName);
+      /// <summary>
+      /// Allow user to explicitly state the version id.
+      /// </summary>
+      /// <param name="versionId">User defined version id.</param>
+      /// <param name="friendlyName">User defined version name.</param>
+      /// <returns></returns>
+      public abstract VersionControl createNewVersionControl(string versionId, string friendlyName);
+
+      protected abstract VersionControl createVersionControl(string fromVersion, string friendlyName, string explicitNewVersionId = null);
 
       /*
        * Protected properties 

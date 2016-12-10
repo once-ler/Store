@@ -61,6 +61,8 @@ namespace Store.Storage {
         // Current is now merged
         destRec.current = o;
         destRec.ts = DateTime.Now;
+        destRec.name = destRec.name ?? destRec.id;
+
         // Deque record into history
         destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = o });
         // Create schema and store if not exist
@@ -114,12 +116,12 @@ namespace Store.Storage {
         var currentJson = Newtonsoft.Json.JsonConvert.SerializeObject(rec.current);
         var historyJson = Newtonsoft.Json.JsonConvert.SerializeObject(rec.history);
 
-        // var runner = new CommandRunner(dbContext);
-        var sql = string.Format("insert into {0}.{1} (id, ts, current, history) values ('{2}', now(), '{3}', '{4}') " +
+        var sql = string.Format("insert into {0}.{1} (id, name, ts, current, history) values ('{2}', '{3}', now(), '{4}', '{5}') " +
           "on conflict (id) do update set ts = now(), current = EXCLUDED.current, history = EXCLUDED.history", 
           version, 
           resolveTypeToString<T>(), 
-          rec.id, 
+          rec.id,
+          rec.name,
           currentJson, 
           historyJson
         );

@@ -58,8 +58,18 @@ namespace Store.Storage {
         return this.versioncontrols as List<VersionControl>;
       }
 
-      public override VersionControl createVersionControl(string fromVersion, string friendlyName) {
-        var guid = "v$" + Guid.NewGuid().ToString().Replace("-", "_").Substring(0, 8);
+      /// <summary>
+      /// Implement
+      /// </summary>
+      /// <param name="versionId"></param>
+      /// <param name="friendlyName"></param>      
+      /// <returns></returns>
+      public override VersionControl createNewVersionControl(string versionId, string friendlyName) {
+        return createVersionControl("master", friendlyName, versionId);
+      }
+
+      protected override VersionControl createVersionControl(string fromVersion, string friendlyName, string explicitNewVersionId = null) {
+        var guid = explicitNewVersionId ?? "v$" + Guid.NewGuid().ToString().Replace("-", "_").Substring(0, 8);
 
         Tuple<string, object[]>[] cmds = {
           new Tuple<string, object[]>("select clone_schema(@0, @1)", new object[]{ fromVersion, guid }),
