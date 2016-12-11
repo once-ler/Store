@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Threading;
 using GraphQL.Types;
 using FastMember;
 using Store.Models;
@@ -17,8 +20,12 @@ namespace Store.GraphQL {
     public Type(Type ty) : base(ty) { }
 
     public override ObjectGraphType CreateGraphQLType() {
-      var objectType = TypeAccessor.Create(typeof(T));
+      // Use IL
+      var generatedType = type.BuildObjectGraphType();
 
+      return null;
+      
+      var objectType = TypeAccessor.Create(type);
       var o = new ObjectGraphType<T>();
       var p = TypeAccessor.Create(o.GetType());
 
