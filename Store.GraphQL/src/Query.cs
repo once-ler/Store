@@ -13,24 +13,28 @@ namespace Store.GraphQL {
     public Query(string tyName) : base(tyName) { }
     public Query(Type ty) : base(ty) { }
 
-    public override ObjectGraphType CreateGraphQLType() {
-      
-      // Create an anonymous type
+    protected override ObjectGraphType createResolvers() {
+      // Create an anonymous type.
       var gqlObj = new ObjectGraphType();
       gqlObj.Name = type.Name + "Query";
 
       // Get the corresponding GraphQLType from IoC
-      var gqlTypeInstance = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
+      var gqlType = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
 
-      // TODO: Need to define Arguments for each resolver
-      Dictionary<string, GQL.Resolvers.IFieldResolver> queries = new Dictionary<string, GQL.Resolvers.IFieldResolver> {
-        { "one", new OneResolver() },
-        { "list", new ListResolver() },
-        { "search", new SearchResolver() }
+      GQL.Resolvers.FuncFieldResolver<object, object> testfunc = new GQL.Resolvers.FuncFieldResolver<object, object>(
+        context => {
+          return store.one("version", type.Name, "id", "abc");
+        }
+      );
+      // TODO: Need to define Arguments for each resolver.
+      Dictionary<string, GQL.Resolvers.FuncFieldResolver<object, object>> queries = new Dictionary<string, GQL.Resolvers.FuncFieldResolver<object, object>> {
+        { "one", testfunc },
+        { "list", testfunc },
+        { "search", testfunc }
       };
-
+      
       foreach(var item in queries) {
-        var fld = new FieldType { Name = item.Key, Resolver = item.Value, Type = gqlTypeInstance };
+        var fld = new FieldType { Name = item.Key, Resolver = testfunc, Type = gqlType };
         gqlObj.AddField(fld);
       } 
 

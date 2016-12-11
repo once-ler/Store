@@ -11,6 +11,8 @@ using Store.Interfaces;
 using Store.IoC;
 using Store.Storage;
 
+using GQL = GraphQL;
+
 namespace Store.GraphQL {
   // Mock Model  
   public class Droid : Model {
@@ -36,11 +38,17 @@ namespace Store.GraphQL {
     protected override string createSchema(string version) { throw new NotImplementedException(); }
     protected override string createStore(string version, string store) { throw new NotImplementedException(); }
     protected override string upsertStore(string version, Record<T> rec) { throw new NotImplementedException(); }
-    protected override U getOneRecord<U>(string version, string field, string value, Type typeOfParty = null) { throw new NotImplementedException(); }
-    protected override dynamic getOneRecord(string version, string typeOfStore, string field, string value) { throw new NotImplementedException(); }
+    protected override U getOneRecord<U>(string version, string field, string value, Type typeOfParty = null) {
+      return new Droid { id = "1", name = "R2-D2" } as U;
+      throw new NotImplementedException();
+    }
+    protected override dynamic getOneRecord(string version, string typeOfStore, string field, string value) {
+      return new Droid { id = "1", name = "C3PO" };
+      throw new NotImplementedException();
+    }
     public override long count(string version, string field = null, string search = null) { throw new NotImplementedException(); }
   };
-
+ 
   public class Index {
 
     private static async void Run(Schema schema) {
@@ -52,6 +60,7 @@ namespace Store.GraphQL {
                   one {
                     id
                     name
+                    integer1
                   }
                 }
               ";
@@ -67,19 +76,9 @@ namespace Store.GraphQL {
       // Must register Stores
       var dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
       ServiceProvider.Instance.Singleton<MockClient<Droid>>(() => new MockClient<Droid>(dbContext));
-
-      // Test CreateObjectGraph
-      var a = new Type<Droid>();
-      var gqlo  = a.CreateGraphQLType();
-      // var glInstance = ServiceProvider.Instance.Get(typeof(Droid).Name + "Type");
       
-      // Test Query
       var q = new Query<Droid>();
-      var gqlq = q.CreateGraphQLType();
-
-      // Test Schema
-      var schema = new Schema { Query = gqlq };
-
+      var schema = new Schema { Query = q.getGraphType() };
       Run(schema);
     }
 
@@ -141,7 +140,7 @@ namespace Store.GraphQL {
       FieldType fty = new FieldType {
         Type = obj.GetType(),
         Name = "one",
-        Resolver = new OneResolver()
+        Resolver = new OneResolver(typeof(System.Object))
       };
       query.AddField(fty);
 

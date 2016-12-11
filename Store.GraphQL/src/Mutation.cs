@@ -11,8 +11,8 @@ namespace Store.GraphQL {
     public Mutation(string tyName) : base(tyName) { }
     public Mutation(Type ty) : base(ty) { }
 
-    public override ObjectGraphType CreateGraphQLType() {
-      return null;
+    protected override ObjectGraphType createResolvers() {
+      throw new NotImplementedException();
     }
   }
 }
