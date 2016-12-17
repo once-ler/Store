@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GraphQL;
 using GraphQL.Types;
 using FastMember;
@@ -31,10 +32,12 @@ namespace Store.GraphQL {
       var members = objectType.GetMembers();
 
       foreach (var f in members) {
+
+        FieldType fld = null;
         // Add to gqlObj
         var primiTy = f.Type.FromPrimitiveToGraphQLType();
         if (primiTy != null) {
-          var fld = new FieldType {
+          fld = new FieldType {
             Name = f.Name,
             Type = primiTy,
             Resolver = new GQL.Resolvers.ExpressionFieldResolver<object, object>(
@@ -43,37 +46,59 @@ namespace Store.GraphQL {
           };
           if (fld.Type == typeof(DateGraphType)) {
             fld.DefaultValue = DateTime.Now;
-          }
-          this.AddField(fld);
+          }          
         } else {
-          // WIP
-          // If it's in the locator, we can add it
-          var anotherGqlType = ServiceProvider.Instance.GetType(f.Name + "Type");
-          var anotherType = ServiceProvider.Instance.GetType(f.Name);
-          if (anotherGqlType == null) {
-            // What about the originating type?
-            if (anotherType != null) {
-              //Type generic = typeof<Store.GraphQL.Type<>>;
-              //Type specific = generic.MakeGenericType(typeof(int));
-              //ConstructorInfo ci = specific.GetConstructor(Type.EmptyTypes);
-              //object o = ci.Invoke(new object[] { });
+          Type objectGraphType = f.Type;
 
-              // Create a GraphQL type for this type.
-              // var aType = new Type<Model>(anotherType);
-              // var aGqlType = aType.CreateGraphQLType();
-              // What about the resolver?
-              // var fld = new FieldType { Name = f.Name, Type = aGqlType.GetType() };
-              // this.AddField(fld);
-            }
+          // Is this a generic collection?
+          if (f.Type.IsGenericType) {
+            objectGraphType = f.Type.GenericTypeArguments[0];
           }
-        }
-      }
-      
-      ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());
-      
-    }
 
-    private string graphQlType;
+          string objectGraphTypeName = objectGraphType.Name + "Type";
+
+          var nextGraphQLType = ServiceProvider.Instance.GetType(objectGraphTypeName);
+
+          if (nextGraphQLType == null) {
+            Type genericStoreGraphQlType = typeof(Store.GraphQL.Type<>);
+            
+            // By creating the type, will be registered in IoC
+            var anotherGqlType = genericStoreGraphQlType.MakeGenericType(objectGraphType);
+            
+            var o_ = TypeAccessor.Create(anotherGqlType);
+            var t_ = o_.CreateNew();
+
+            // Another way of creating it:
+            // System.Reflection.ConstructorInfo ci = anotherGqlType.GetConstructor(Type.EmptyTypes);
+            // object o = ci.Invoke(new object[] { });
+
+            // Should be there now.
+            // TODO: Name is Type`1, not intended.
+            nextGraphQLType = ServiceProvider.Instance.GetType(objectGraphTypeName);
+          }
+
+          // For now, only support List<>
+          if (f.Type.GetGenericTypeDefinition() == typeof(List<>) && f.Type.IsGenericType) {
+
+            // var a = new ListGraphType(nextGraphQLType as IGraphType);
+            nextGraphQLType = typeof(ListGraphType<>).MakeGenericType(nextGraphQLType);
+          }
+
+          fld = new FieldType {
+            Name = f.Name,
+            Type = nextGraphQLType,
+            Resolver = new GQL.Resolvers.ExpressionFieldResolver<object, object>(
+                context => context.GetProperyValue(f.Name)
+              )
+          };
+        }
+
+        this.AddField(fld);
+
+      }
+
+      ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());      
+    }
 
   }
 

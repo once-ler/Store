@@ -12,6 +12,9 @@
       args {
         ...InputValue
       }
+      onOperation
+      onFragment
+      onField
     }
   }
 }

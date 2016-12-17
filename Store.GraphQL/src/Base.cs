@@ -11,7 +11,8 @@ namespace Store.GraphQL {
     }
 
     protected void registerType() {
-      // Type will be added to IoC.
+      // A new type deroved from ObjectGraphType<T> will be created.
+      // Type will then be added to IoC.
       var t = new Type<T>();
     }
   }

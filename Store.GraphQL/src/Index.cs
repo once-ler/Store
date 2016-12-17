@@ -15,11 +15,11 @@ using Store.GraphQL.Util;
 using GQL = GraphQL;
 
 namespace Store.GraphQL {
-  // Mock Model  
+  // Mock Model
+  public class Human : Model {
+    public string nickName { get; set; }
+  }
   public class Droid : Model {
-    public string id { get; set; }
-    public string name { get; set; }
-    public DateTime ts { get; set; }
     public bool boolean { get; set; }
     public byte integer1 { get; set; }
     public short integer16 { get; set; }
@@ -28,6 +28,7 @@ namespace Store.GraphQL {
     public Single float4 { get; set; }
     public double float8 { get; set; }
     public decimal decimal16 { get; set; }
+    public List<Human> friends { get; set; }
   }
 
   // Mock Client
@@ -96,8 +97,11 @@ namespace Store.GraphQL {
       
       // Must register Stores
       var dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
+      // Register a Droid store. 
       ServiceProvider.Instance.Singleton<MockClient<Droid>>(() => new MockClient<Droid>(dbContext));
-      
+      // Register a Human store. 
+      ServiceProvider.Instance.Singleton<MockClient<Human>>(() => new MockClient<Human>(dbContext));
+
       var q = new Query<Droid>();
       var schema = new Schema { Query = q.getGraphType() };
       // Run(schema);
