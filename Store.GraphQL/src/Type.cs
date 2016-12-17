@@ -14,11 +14,16 @@ namespace Store.GraphQL {
   /// <typeparam name="T"></typeparam>
   public class Type<T> : ObjectGraphType<T> {
     public Type() {
+      this.Name = getGraphQlTypeName();
       createResolvers();
     }
 
     public System.Type getBaseType() {
       return typeof(T);
+    }
+
+    public string getGraphQlTypeName() {
+      return typeof(T).Name + "Type";
     }
 
     public void createResolvers() {
@@ -63,10 +68,12 @@ namespace Store.GraphQL {
           }
         }
       }
-
-      ServiceProvider.Instance.Register(typeof(T).Name + "Type", this.GetType());
+      
+      ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());
       
     }
+
+    private string graphQlType;
 
   }
 

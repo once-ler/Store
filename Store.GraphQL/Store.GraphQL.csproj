@@ -74,7 +74,7 @@
     <Compile Include="src\Query.cs" />
     <Compile Include="src\Resolver.cs" />
     <Compile Include="src\Type.cs" />
-    <Compile Include="util\Helper.cs" />
+    <Compile Include="Util\Helper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
