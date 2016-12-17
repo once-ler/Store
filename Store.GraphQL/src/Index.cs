@@ -10,6 +10,7 @@ using Store.Models;
 using Store.Interfaces;
 using Store.IoC;
 using Store.Storage;
+using Store.GraphQL.Util;
 
 using GQL = GraphQL;
 
@@ -50,6 +51,26 @@ namespace Store.GraphQL {
   };
  
   public class Index {
+    
+    private static async void RunFromFile(Schema schema) {
+
+      var t = Helper.ReadAll("gql/Introspection-query.gql");
+      try {
+        t.Wait();
+        Console.WriteLine(t.Result);
+      } catch (Exception err) {
+        Console.WriteLine(err.StackTrace);
+      }
+      var result = await new DocumentExecuter().ExecuteAsync(_ => {
+        _.Schema = schema;
+        _.Query = t.Result;
+      }).ConfigureAwait(false);
+
+      var json = new DocumentWriter(indent: true).Write(result);
+
+      json.WriteAll(@"out/introspection-query.json");
+      // Console.WriteLine(json);
+    }
 
     private static async void Run(Schema schema) {
       var result = await new DocumentExecuter().ExecuteAsync(_ =>
@@ -79,7 +100,8 @@ namespace Store.GraphQL {
       
       var q = new Query<Droid>();
       var schema = new Schema { Query = q.getGraphType() };
-      Run(schema);
+      // Run(schema);
+      RunFromFile(schema);
     }
 
     public void experiment() {
