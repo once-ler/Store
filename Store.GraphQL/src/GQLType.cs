@@ -9,45 +9,15 @@ using GQL = GraphQL;
 
 namespace Store.GraphQL {
   
-  public interface IGQLType {
-    Type getBaseType();
-    string getGraphQlTypeName();
-    void createResolvers();
-  }
-  
-  public class GQLType : ObjectGraphType, IGQLType {
-    
-    public GQLType(Type ty) {
-      ty_ = ty;
-      this.Name = getGraphQlTypeName();
-      this.createResolvers();
-    }
-
-    public Type getBaseType() {
-      return ty_;
-    }
-
-    public string getGraphQlTypeName() {
-      return ty_.Name + "Type";
-    }
-
-    public void createResolvers() {
-      var fields = ty_.createFieldResolvers();
-      foreach (var fld in fields) this.AddField(fld);
-      ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());
-    }
-
-    private Type ty_;
-  }
-
   /// <summary>
   /// Assumption is that all required dependent types have been registered into the ServiceProvider.Instance IoC
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public class GQLType<T> : ObjectGraphType<T>, IGQLType {
+  public class GQLType<T> : ObjectGraphType<T> {
     public GQLType() {
-      this.Name = getGraphQlTypeName();      
-      this.createResolvers();
+      Name = getGraphQlTypeName();
+      IsTypeOf = value => value is T;
+      createResolvers();
     }
 
     public Type getBaseType() {
@@ -59,31 +29,36 @@ namespace Store.GraphQL {
     }
 
     public void createResolvers() {
-      var fields = (typeof(T)).createFieldResolvers();
+      var fields = createFieldResolvers();
       foreach (var fld in fields) this.AddField(fld);
       ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());
     }
+    
+    private List<FieldType> createFieldResolvers() {
+      List<FieldType> fields = new List<FieldType>();
 
-    public void createResolversDeprecate() {
       var objectType = TypeAccessor.Create(typeof(T));
+      // var objectType = TypeAccessor.Create(gqlType);
       var members = objectType.GetMembers();
 
       foreach (var f in members) {
 
-        FieldType fld = null;
-        // Add to gqlObj
+        FieldType fld = new FieldType {
+          Name = f.Name,
+          Description = f.Name,
+          Resolver = new GQL.Resolvers.ExpressionFieldResolver<object, object>(
+            context => context.GetProperyValue(f.Name)
+          )
+        };
+
+        // Is this a primitive GraphQL type?
         var primiTy = f.Type.FromPrimitiveToGraphQLType();
         if (primiTy != null) {
-          fld = new FieldType {
-            Name = f.Name,
-            Type = primiTy,
-            Resolver = new GQL.Resolvers.ExpressionFieldResolver<object, object>(
-                context => context.GetProperyValue(f.Name)
-              )
-          };
+          fld.Type = primiTy;
+          // Is this default necessary?
           if (fld.Type == typeof(DateGraphType)) {
             fld.DefaultValue = DateTime.Now;
-          }          
+          }
         } else {
           Type objectGraphType = f.Type;
 
@@ -92,51 +67,29 @@ namespace Store.GraphQL {
             objectGraphType = f.Type.GenericTypeArguments[0];
           }
 
-          string objectGraphTypeName = objectGraphType.Name + "Type";
-
-          var nextGraphQLType = ServiceProvider.Instance.GetType(objectGraphTypeName);
+          // Is this GraphQL type already registered in IoC?
+          var nextGraphQLType = ServiceProvider.Instance.GetType(objectGraphType.Name + "Type");
 
           if (nextGraphQLType == null) {
-            Type genericStoreGraphQlType = typeof(Store.GraphQL.GQLType<>);
-            
-            // By creating the type, will be registered in IoC
-            var anotherGqlType = genericStoreGraphQlType.MakeGenericType(objectGraphType);
-            
-            var o_ = TypeAccessor.Create(anotherGqlType);
-            var t_ = o_.CreateNew();
-
-            // Another way of creating it:
-            // System.Reflection.ConstructorInfo ci = anotherGqlType.GetConstructor(Type.EmptyTypes);
-            // object o = ci.Invoke(new object[] { });
-
-            // Should be there now.
-            // TODO: Name is Type`1, not intended.
-            nextGraphQLType = ServiceProvider.Instance.GetType(objectGraphTypeName);
+            // After creating GQLType, IoC is updated and this type should be there now.
+            nextGraphQLType = objectGraphType.registerGQLType();
           }
 
           // For now, only support List<>
-          if (f.Type.GetGenericTypeDefinition() == typeof(List<>) && f.Type.IsGenericType) {
-
-            // var a = new ListGraphType(nextGraphQLType as IGraphType);
+          if (f.Type.IsGenericType && f.Type.GetGenericTypeDefinition() == typeof(List<>)) {
+            var a = new ListGraphType(nextGraphQLType as IGraphType);
             nextGraphQLType = typeof(ListGraphType<>).MakeGenericType(nextGraphQLType);
           }
 
-          fld = new FieldType {
-            Name = f.Name,
-            Type = nextGraphQLType,
-            Resolver = new GQL.Resolvers.ExpressionFieldResolver<object, object>(
-                context => context.GetProperyValue(f.Name)
-              )
-          };
+          fld.Type = nextGraphQLType;
         }
 
-        this.AddField(fld);
+        fields.Add(fld);
 
       }
 
-      ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());      
+      return fields;
     }
-
   }
 
   /* GraphQL Scalars */
@@ -164,7 +117,7 @@ namespace Store.GraphQL {
   const NativeUndefinedType: NativeType = 'undefined';
   */
 
-  /*  Not Implemented */
+  /*  Not Implemented Yet */
   /* 
   GraphQLEnumType
   GraphQLInterfaceType

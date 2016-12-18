@@ -17,6 +17,10 @@ namespace Store.GraphQL {
     }
   }
 
+  /// <summary>
+  /// Query and Mutation will derive from this class.
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
   public abstract class GQLBase<T> : RegisterBase<T> where T : Model {
     public GQLBase() : base() {
       string tyName = typeof(T).Name;

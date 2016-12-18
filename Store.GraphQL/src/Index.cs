@@ -29,6 +29,7 @@ namespace Store.GraphQL {
     public double float8 { get; set; }
     public decimal decimal16 { get; set; }
     public List<Human> friends { get; set; }
+    public Human friend { get; set; }
   }
 
   // Mock Client
@@ -58,7 +59,7 @@ namespace Store.GraphQL {
       var t = Helper.ReadAll("gql/Introspection-query.graphql");
       try {
         t.Wait();
-        Console.WriteLine(t.Result);
+        // Console.WriteLine(t.Result);
       } catch (Exception err) {
         Console.WriteLine(err.StackTrace);
       }

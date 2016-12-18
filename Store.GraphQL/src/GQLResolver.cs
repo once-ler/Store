@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GraphQL.Types;
 using GQL = GraphQL;
 
+// Will probably remove these classes.
 namespace Store.GraphQL {
   class OneResolver : GQL.Resolvers.IFieldResolver{
     public OneResolver(Type ty) {

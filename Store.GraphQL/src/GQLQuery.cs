@@ -2,7 +2,6 @@
 using GraphQL.Types;
 using GQL = GraphQL;
 using System.Collections.Generic;
-using FastMember;
 using Store.Models;
 using Store.IoC;
 
@@ -17,6 +16,7 @@ namespace Store.GraphQL {
       // Create an anonymous type.
       var gqlObj = new ObjectGraphType();
       gqlObj.Name = type.Name + "Query";
+      gqlObj.Description = gqlObj.Name;
 
       // Get the corresponding GraphQLType from IoC
       var gqlType = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
