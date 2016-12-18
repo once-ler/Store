@@ -8,18 +8,49 @@ using Store.IoC;
 using GQL = GraphQL;
 
 namespace Store.GraphQL {
+  
+  public interface IGQLType {
+    Type getBaseType();
+    string getGraphQlTypeName();
+    void createResolvers();
+  }
+  
+  public class GQLType : ObjectGraphType, IGQLType {
+    
+    public GQLType(Type ty) {
+      ty_ = ty;
+      this.Name = getGraphQlTypeName();
+      this.createResolvers();
+    }
+
+    public Type getBaseType() {
+      return ty_;
+    }
+
+    public string getGraphQlTypeName() {
+      return ty_.Name + "Type";
+    }
+
+    public void createResolvers() {
+      var fields = ty_.createFieldResolvers();
+      foreach (var fld in fields) this.AddField(fld);
+      ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());
+    }
+
+    private Type ty_;
+  }
 
   /// <summary>
   /// Assumption is that all required dependent types have been registered into the ServiceProvider.Instance IoC
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public class Type<T> : ObjectGraphType<T> {
-    public Type() {
-      this.Name = getGraphQlTypeName();
-      createResolvers();
+  public class GQLType<T> : ObjectGraphType<T>, IGQLType {
+    public GQLType() {
+      this.Name = getGraphQlTypeName();      
+      this.createResolvers();
     }
 
-    public System.Type getBaseType() {
+    public Type getBaseType() {
       return typeof(T);
     }
 
@@ -28,6 +59,12 @@ namespace Store.GraphQL {
     }
 
     public void createResolvers() {
+      var fields = (typeof(T)).createFieldResolvers();
+      foreach (var fld in fields) this.AddField(fld);
+      ServiceProvider.Instance.Register(getGraphQlTypeName(), this.GetType());
+    }
+
+    public void createResolversDeprecate() {
       var objectType = TypeAccessor.Create(typeof(T));
       var members = objectType.GetMembers();
 
@@ -60,7 +97,7 @@ namespace Store.GraphQL {
           var nextGraphQLType = ServiceProvider.Instance.GetType(objectGraphTypeName);
 
           if (nextGraphQLType == null) {
-            Type genericStoreGraphQlType = typeof(Store.GraphQL.Type<>);
+            Type genericStoreGraphQlType = typeof(Store.GraphQL.GQLType<>);
             
             // By creating the type, will be registered in IoC
             var anotherGqlType = genericStoreGraphQlType.MakeGenericType(objectGraphType);

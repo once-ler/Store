@@ -13,12 +13,12 @@ namespace Store.GraphQL {
     protected void registerType() {
       // A new type deroved from ObjectGraphType<T> will be created.
       // Type will then be added to IoC.
-      var t = new Type<T>();
+      var t = new GQLType<T>();
     }
   }
 
-  public abstract class Base<T> : RegisterBase<T> where T : Model {
-    public Base() : base() {
+  public abstract class GQLBase<T> : RegisterBase<T> where T : Model {
+    public GQLBase() : base() {
       string tyName = typeof(T).Name;
       dynamic _store = ServiceProvider.Instance.GetStore(tyName);
       store = _store as IStore<T>;
@@ -27,7 +27,7 @@ namespace Store.GraphQL {
       createGraphType();
     }
 
-    public Base(string tyName) : base() {
+    public GQLBase(string tyName) : base() {
       dynamic _store = ServiceProvider.Instance.GetStore(tyName);
       store = _store as IStore<T>;
       type = ServiceProvider.Instance.GetType(tyName);
@@ -35,7 +35,7 @@ namespace Store.GraphQL {
       createGraphType();
     }
 
-    public Base(Type ty) : base() {
+    public GQLBase(Type ty) : base() {
       string tyName = ty.GetType().Name;
       dynamic _store = ServiceProvider.Instance.GetStore(tyName);
       store = _store as IStore<T>;
@@ -44,7 +44,7 @@ namespace Store.GraphQL {
       createGraphType();
     }
 
-    public Base(IStore<T> _store) : base() {
+    public GQLBase(IStore<T> _store) : base() {
       store = _store;
 
       createGraphType();

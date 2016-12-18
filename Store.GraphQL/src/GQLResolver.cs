@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GraphQL.Types;
 using GQL = GraphQL;
 
 namespace Store.GraphQL {
   class OneResolver : GQL.Resolvers.IFieldResolver{
-    public OneResolver(System.Type ty) {
+    public OneResolver(Type ty) {
       ty_ = ty;
     }
     public object Resolve(ResolveFieldContext context) {
       return System.Activator.CreateInstance(ty_);
       // return new ty_();
     }
-    private System.Type ty_;
+    private Type ty_;
   };
 
   class ListResolver : GQL.Resolvers.IFieldResolver {

@@ -55,7 +55,7 @@ namespace Store.GraphQL {
     
     private static async void RunFromFile(Schema schema) {
 
-      var t = Helper.ReadAll("gql/Introspection-query.gql");
+      var t = Helper.ReadAll("gql/Introspection-query.graphql");
       try {
         t.Wait();
         Console.WriteLine(t.Result);
@@ -102,7 +102,7 @@ namespace Store.GraphQL {
       // Register a Human store. 
       ServiceProvider.Instance.Singleton<MockClient<Human>>(() => new MockClient<Human>(dbContext));
 
-      var q = new Query<Droid>();
+      var q = new GQLQuery<Droid>();
       var schema = new Schema { Query = q.getGraphType() };
       // Run(schema);
       RunFromFile(schema);

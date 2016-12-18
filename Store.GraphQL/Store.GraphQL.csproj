@@ -67,18 +67,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Base.cs" />
-    <Compile Include="src\Extensions.cs" />
+    <Compile Include="src\GQLBase.cs" />
+    <Compile Include="src\GQLExtensions.cs" />
     <Compile Include="src\Index.cs" />
-    <Compile Include="src\Mutation.cs" />
-    <Compile Include="src\Query.cs" />
-    <Compile Include="src\Resolver.cs" />
-    <Compile Include="src\Type.cs" />
+    <Compile Include="src\GQLMutation.cs" />
+    <Compile Include="src\GQLQuery.cs" />
+    <Compile Include="src\GQLResolver.cs" />
+    <Compile Include="src\GQLType.cs" />
     <Compile Include="Util\Helper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="gql\introspection-query.gql">
+    <None Include="gql\introspection-query.graphql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

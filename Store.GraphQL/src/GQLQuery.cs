@@ -7,11 +7,11 @@ using Store.Models;
 using Store.IoC;
 
 namespace Store.GraphQL {
-  public class Query<T> : Base<T> where T : Model {
+  public class GQLQuery<T> : GQLBase<T> where T : Model {
   
-    public Query() : base() { }
-    public Query(string tyName) : base(tyName) { }
-    public Query(Type ty) : base(ty) { }
+    public GQLQuery() : base() { }
+    public GQLQuery(string tyName) : base(tyName) { }
+    public GQLQuery(Type ty) : base(ty) { }
 
     protected override ObjectGraphType createResolvers() {
       // Create an anonymous type.
