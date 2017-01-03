@@ -22,10 +22,14 @@ namespace Store.Storage {
       }
       
       public override List<Record<T>> list(string version, int offset, int limit) {
-        var sql = string.Format("select * from {0}.{1} order by id desc offset {2} limit {3}", new object[] { version, this.resolveTypeToString<T>(), offset.ToString(), limit.ToString() });
+        var resp = runner<dynamic>(
+          () => createSchema(version),
+          () => createStore(version, resolveTypeToString<T>()),
+          () => runSqlDynamic(string.Format("select * from {0}.{1} order by id desc offset {2} limit {3}", new object[] { version, this.resolveTypeToString<T>(), offset.ToString(), limit.ToString() }))
+        );
+        var results = resp.LastOrDefault() as IEnumerable<dynamic>;
+        
         List<Record<T>> list = new List<Record<T>>();
-        var runner = new CommandRunner(dbConnection);
-        var results = runner.ExecuteDynamic(sql, null);
 
         foreach (var d in results) {
           var rec = makeRecord(d);
@@ -36,16 +40,11 @@ namespace Store.Storage {
       
       public override U save<U>(string version, U doc) {
         var dy = doc as dynamic;
-        // var id = typeof(U) == typeof(T) ? (doc as Model).id : ((doc as Record<T>).current as Model).id;
         var id = typeof(U) == typeof(T) ? dy.id : dy.current.id;
 
         // Always fetch current record from storage
-        Record<T> destRec = null;
-        try {
-          destRec = one<Record<T>>(version, "id", id);
-        } catch (Exception e) {
-          destRec = new Record<T> { id = id, ts = DateTime.Now, current = new T(), history = new List<History<T>>() };
-        }
+        Record<T> destRec = one<Record<T>>(version, "id", id);
+        if (destRec == null) destRec = new Record<T> { id = id, name = id, ts = DateTime.Now, current = new T(), history = new List<History<T>>() };
 
         // Try to re-populate all properties of attributes that are types.
         // In this scenario, the incoming doc may only contain the "id" attribute and nothing else.
@@ -55,7 +54,6 @@ namespace Store.Storage {
 
         // Merge the incoming source doc to the incumbent doc.
         T o = merge(destRec.current, src);
-        // (o as Model).ts = DateTime.Now;
         (o as dynamic).ts = DateTime.Now;
 
         // Current is now merged
@@ -65,20 +63,32 @@ namespace Store.Storage {
 
         // Deque record into history
         destRec.history.Insert(0, new History<T> { id = Guid.NewGuid().ToString(), ts = DateTime.Now, source = o });
-        // Create schema and store if not exist
-        runner(() => createSchema(version), () => createStore(version, resolveTypeToString<T>()));
-        // Update store
-        var response = upsertStore(version, destRec);
+        
+        // 1. Create schema and store if not exist
+        // 2. Update store
+        var resp = runner(
+          () => createSchema(version),
+          () => createStore(version, resolveTypeToString<T>()),
+          () => upsertStore(version, destRec)
+        );
+
+        var response = resp.LastOrDefault();
+
         if (response != OperatonResult.Succeeded.ToString("F")) throw new Exception(response);
         return typeof(U) == typeof(T) ? destRec.current as U : destRec as U;
       }
       
       public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10) {
         if (limit < 0 || limit > 500) throw new NotSupportedException("The limit for search must be between 1 and 500.");
-        var sql = string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' offset {4} limit {5}", new object[] { version, this.resolveTypeToString<T>(), field, search, offset.ToString(), limit.ToString() });
+        
+        var resp = runner<dynamic>(
+          () => createSchema(version),
+          () => createStore(version, resolveTypeToString<T>()),
+          () => runSqlDynamic(string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' offset {4} limit {5}", new object[] { version, this.resolveTypeToString<T>(), field, search, offset.ToString(), limit.ToString() }))
+        );
+        var results = resp.LastOrDefault() as IEnumerable<dynamic>;
+
         List<Record<T>> list = new List<Record<T>>();
-        var runner = new CommandRunner(dbConnection);
-        var results = runner.ExecuteDynamic(sql, null);
 
         foreach (var d in results) {
           var rec = makeRecord(d);
@@ -90,9 +100,13 @@ namespace Store.Storage {
       public override long count(string version, string field = null, string search = null) {
         var sql = string.Format("select count(1) count from {0}.{1}", new object[] { version, this.resolveTypeToString<T>() });
         if (field != null && search != null) sql += string.Format(" where current->>'{0}' ~* '{1}'", new object[] { field, search });
-
-        var runner = new CommandRunner(dbConnection);
-        var results = runner.ExecuteDynamic(sql, null);
+        
+        var resp = runner<dynamic>(
+          () => createSchema(version),
+          () => createStore(version, resolveTypeToString<T>()),
+          () => runSqlDynamic(sql)
+        );
+        var results = resp.LastOrDefault() as IEnumerable<dynamic>;
 
         return results.FirstOrDefault().count;
       }
@@ -105,10 +119,10 @@ namespace Store.Storage {
       }
 
       protected override string createStore(string version, string store) {
-        return runner(
+        return string.Join(",", runner<string>(
           () => runSql(string.Format("select create_table('{0}', '{1}')", version, store)),
           () => runSql(string.Format("insert into public.versioncontrol(id, name) values('{0}', '{1}') on conflict(id) DO NOTHING", version, store))
-        );
+        ));
       }
       
       protected override string upsertStore(string version, Record<T> rec) {
@@ -126,13 +140,21 @@ namespace Store.Storage {
           historyJson
         );
 
-        return runSql(sql);
+        return runner(
+          () => createSchema(version),
+          () => createStore(version, resolveTypeToString<T>()),
+          () => runSql(sql)
+        ).LastOrDefault();
       }
 
       protected override U getOneRecord<U>(string version, string field, string value, Type typeOfParty = null) {
-        var runner = new CommandRunner(dbConnection);
-        var sql = string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, this.resolveTypeToString<U>(), field, value });
-        var results = runner.ExecuteDynamic(sql, null);
+        var resp = runner<dynamic>(
+          () => createSchema(version),
+          () => createStore(version, resolveTypeToString<T>()),
+          () => runSqlDynamic(string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, this.resolveTypeToString<U>(), field, value }))
+        );
+        var results = resp.LastOrDefault() as IEnumerable<dynamic>;
+
         var d = results.FirstOrDefault();
         if (d == null) return null;
         var rec = makeRecord(d);
@@ -144,14 +166,19 @@ namespace Store.Storage {
         // "party" of Participant and is unknown at runtime.
         if (affiliationWrapper != null && affiliationWrapper.Name == "Affiliation`1" && typeOfParty != null) convertPartyToType(rec.current.roster, typeOfParty);
         if (typeof(U) == typeof(T)) return rec.current;
-        return rec;
+        return rec;        
       }
 
       protected override dynamic getOneRecord(string version, string typeOfStore, string field, string value) {
         var store = typeOfStore.ToLower();
-        var runner = new CommandRunner(dbConnection);
-        var sql = string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, store, field, value });
-        var results = runner.ExecuteDynamic(sql, null);
+
+        var resp = runner<dynamic>(
+          () => createSchema(version),
+          () => createStore(version, resolveTypeToString<T>()),
+          () => runSqlDynamic(string.Format("select * from {0}.{1} where current->>'{2}' = '{3}' limit 1", new object[] { version, store, field, value }))
+        );
+        var results = resp.LastOrDefault() as IEnumerable<dynamic>;
+
         var d = results.FirstOrDefault();
         if (d == null) return null;
         JObject o = JObject.Parse(d.current);

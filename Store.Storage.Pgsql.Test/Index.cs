@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
+using System.Data.Common;
+using Npgsql;
 using NSpec;
 using Store.Interfaces;
 using Store.Models;
 using Store.IoC;
+using Store.Storage.Data;
 using Store.Storage.Pgsql;
 using Store.Storage.Pgsql.Test.fixtures.Models;
 using Store.Storage.Pgsql.Test.fixtures.Clients;
@@ -205,6 +209,28 @@ namespace Store.Storage.Pgsql.Test {
     }
 
     void describe_client_additional_tests() {
+      describe["fetch will succeed even if version and store has not been created"] = () => {
+        string someVersion = "v$12345678";
+        string sql = "drop schema v$12345678 cascade";
+        before = () => {
+          var fac = new Factory<NpgsqlConnection>();
+          var dbConnection = fac.Get(dbContext);
+          CommandRunner runner = new CommandRunner(dbConnection);
+          try {
+            runner.Transact(new DbCommand[] { runner.BuildCommand(sql, null) });
+          } catch (Exception err) {
+            // Expect -> 3F000: schema "v$12345678" does not exist
+            Console.WriteLine(err.Message);
+          }
+        };
+        act = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+          droid = droidClient.one<Droid>(someVersion, "id", "R2-D2");
+        };
+
+        it["droid should be null and no errors were thrown and unhandled"] = () => droid.should_be_null();
+      };
+
       describe["can create version and store on demand"] = () => {
         string someVersion = "v$12345678";
         before = () => {
@@ -531,7 +557,7 @@ namespace Store.Storage.Pgsql.Test {
 
       // Passing a "party" Type to an Affiliation and check that the party is a DroidExtended and not a dynamic type
       // empireExtendedObj = empireExtendedClient.one<Record<EmpireExtended>>(someVersion, "id", "empire", typeof(DroidExtended));
-      
+
       // Associate again 3 times and check for dupes
       // foreach(int i in Enumerable.Range(1, 3)) {
       //   empireExtendedClient.associate<ParticipantExtended, DroidExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
@@ -540,6 +566,29 @@ namespace Store.Storage.Pgsql.Test {
 
       // Disassociate from an Affiliation
       // empireExtendedClient.disassociate<ParticipantExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
+
+      // ----------------------------------------------------------------------------------------------------------
+      // Calling one when version and schema does not exist will not throw
+      var fac = new Factory<NpgsqlConnection>();
+      var dbConnection = fac.Get(dbContext);
+      CommandRunner runner = new CommandRunner(dbConnection);
+      try {
+        runner.Transact(new DbCommand[] { runner.BuildCommand("drop schema v$12345678 cascade", null) });
+      } catch (Exception err) {
+        // Expect -> 3F000: schema "v$12345678" does not exist
+        Console.WriteLine(err.Message);
+      }
+      ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
+      var someDroidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
+      var someDroid = someDroidClient.one<Droid>(someVersion, "id", "R2-D2");
+      Console.WriteLine(someDroid == null);
+
+      // ----------------------------------------------------------------------------------------------------------
+      // Calling save when version and schema does not exist will not throw
+      var newDroid = new Droid { id = "2-1B", name = "2-1B", ts = DateTime.Now };
+      someDroidClient.save("v$12345678", newDroid);
+      var fetchNewDroid = someDroidClient.one<Droid>(someVersion, "id", "2-1B");
+      Console.WriteLine(fetchNewDroid != null);
 
       // ----------------------------------------------------------------------------------------------------------
       //Create a Affiliation that is derived from the Empire called FirstOrder

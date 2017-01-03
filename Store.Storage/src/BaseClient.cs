@@ -19,7 +19,7 @@ namespace Store {
       public BaseClient(DBContext _dbContext) {
         dbContext = _dbContext;
       }
-      
+
       /// <summary>
       /// list must be overridden.
       /// </summary>
@@ -50,16 +50,16 @@ namespace Store {
       public abstract List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10);
 
       public abstract long count(string version, string field = null, string search = null);
-      
+
       public U one<U>(string version, string field, string value, Type typeOfParty = null) where U : class {
         var rec = getOneRecord<U>(version, field, value, typeOfParty);
-        if (rec == null) throw new Exception("IModel for field: " + field + " and value: " + value + " not found.");
+        // Don't throw, just return null
         return rec as U;
       }
 
       public dynamic one(string version, string typeOfStore, string field, string value) {
         var rec = getOneRecord(version, typeOfStore, field, value);
-        if (rec == null) throw new Exception("IModel for field: " + field + " and value: " + value + " not found.");
+        // Don't throw, just return null
         return rec;
       }
 
@@ -226,12 +226,16 @@ namespace Store {
       /*
        * NewSQL Specific Methods
        */
-      protected string runner(params Func<string>[] actions) { List<string> results = new List<string>(); foreach (var act in actions) results.Add(act()); return string.Join(",", results); }
+      protected List<A> runner<A>(params Func<A>[] actions) { List<A> results = new List<A>(); foreach (var act in actions) results.Add(act()); return results; }
 
       protected string tryCatch(Action act) { try { act(); } catch (Exception e) { return e.Message; } return OperatonResult.Succeeded.ToString("F"); }
-
+      
       protected string runSql(string sql) {
         return tryCatch(() => { var runner = new CommandRunner(dbConnection); runner.Transact(new DbCommand[] { runner.BuildCommand(sql, null) }); });
+      }
+
+      protected IEnumerable<dynamic> runSqlDynamic(string sql) {
+        var runner = new CommandRunner(dbConnection); return runner.ExecuteDynamic(sql, null);
       }
 
       /*
