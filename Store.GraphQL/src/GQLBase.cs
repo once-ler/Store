@@ -60,8 +60,8 @@ namespace Store.GraphQL {
 
     protected abstract ObjectGraphType createResolvers();
 
-    protected IStore<T> store;
-    protected Type type;
+    internal IStore<T> store;
+    internal Type type;
     protected ObjectGraphType graphType;
 
     private void createGraphType() {

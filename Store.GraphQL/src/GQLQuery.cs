@@ -32,8 +32,11 @@ namespace Store.GraphQL {
         { "list", testfunc },
         { "search", testfunc }
       };
-      
-      foreach(var item in queries) {
+
+      // Get Resolvers.
+      var listResolver = new ListResolver<T>(this);
+
+      foreach (var item in queries) {
         var fld = new FieldType { Name = item.Key, Resolver = testfunc, Type = gqlType };
         gqlObj.AddField(fld);
       } 
