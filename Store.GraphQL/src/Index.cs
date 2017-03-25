@@ -106,10 +106,19 @@ namespace Store.GraphQL {
       // Register Root.
       // ServiceProvider.Instance.Singleton<MockClient<Root>>(() => new MockClient<Root>(dbContext));
 
+      // ServiceProvider.Instance.Singleton<GQLQuery<Root>>(() => new GQLQuery<Root>());
+
+      /*
       var q = new GQLQuery<Root>();
+      ServiceProvider.Instance.Singleton<GQLQuery<Root>>(q);
+      var root = ServiceProvider.Instance.GetService<GQLQuery<Root>>();
+      */
+
+      var q = RootQuery.Get();
+
       var d = new GQLQuery<Droid>();
       var h = new GQLQuery<Human>();
-      
+
       q.AppendQuery(d, h);
 
       var schema = new Schema { Query = q.getGraphType() };

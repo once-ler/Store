@@ -6,6 +6,15 @@ using Store.Models;
 using Store.IoC;
 
 namespace Store.GraphQL {
+  public static class RootQuery {
+    public static GQLQuery<Root> Get() {
+      // Check if exist first.
+      var q = new GQLQuery<Root>();
+      ServiceProvider.Instance.Singleton<GQLQuery<Root>>(q);
+      return ServiceProvider.Instance.GetService<GQLQuery<Root>>();
+    }
+  }
+
   public class GQLQuery<T> : GQLBase<T> where T : Model {
   
     public GQLQuery() : base() { }
