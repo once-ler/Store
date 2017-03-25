@@ -119,6 +119,8 @@ namespace Store.GraphQL {
       var d = new GQLQuery<Droid>();
       var h = new GQLQuery<Human>();
 
+      h.AppendQuery(d);
+
       q.AppendQuery(d, h);
 
       var schema = new Schema { Query = q.getGraphType() };
