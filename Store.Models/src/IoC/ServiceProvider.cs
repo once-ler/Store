@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Store.IoC {
   public interface IServiceProvider {
@@ -6,6 +8,7 @@ namespace Store.IoC {
     object GetStore(string typeOfStore);
     Type GetType(string typeName);
     dynamic Get(string typeName);
+    IEnumerable<string> GetRegistrationsByNameKeys();
     void Register(string typeName, Type type);
     void Register(string typeName, dynamic instance);
     void Register<T>();
@@ -154,6 +157,14 @@ namespace Store.IoC {
     /// <returns></returns>
     public dynamic Get(string typeName) {
       return container.Get(typeName);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<string> GetRegistrationsByNameKeys() {
+      return container.GetRegistrationsByNameKeys();
     }
   }  
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GraphQL;
 using GraphQL.Types;
 using FastMember;
@@ -42,5 +43,8 @@ namespace Store.GraphQL {
       return anotherGqlType;
     }
 
+    public static void Apply<T>(this IEnumerable<T> items, Action<T> action) {
+      foreach(var item in items) action(item);
+    }
   }
 }

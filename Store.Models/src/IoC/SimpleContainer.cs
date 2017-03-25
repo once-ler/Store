@@ -10,6 +10,7 @@ namespace Store.IoC {
     object GetStore(string typeOfStore);
     Type GetType(string typeName);
     dynamic Get(string typeName);
+    IEnumerable<string> GetRegistrationsByNameKeys();
     void Register(string typeName, Type type);
     void Register(string typeName, dynamic instance);
     void Register<TService>();
@@ -182,6 +183,14 @@ namespace Store.IoC {
       Func<object> f1;
       _registrationsInstanceByName.TryGetValue(typeName, out f1);
       return f1;
+    }
+
+    /// <summary>
+    /// Get a list of all type names registered by string as its key.
+    /// </summary>
+    /// <returns>IEnumerable[string]</returns>
+    public IEnumerable<string> GetRegistrationsByNameKeys() {
+      return _registrationsByName.Select(d => d.Key);
     }
 
     /// <summary>

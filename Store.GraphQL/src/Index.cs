@@ -16,6 +16,7 @@ using GQL = GraphQL;
 
 namespace Store.GraphQL {
   // Mock Model
+  // public class Root : Model { } 
   public class Human : Model {
     public string nickName { get; set; }
   }
@@ -102,8 +103,15 @@ namespace Store.GraphQL {
       ServiceProvider.Instance.Singleton<MockClient<Droid>>(() => new MockClient<Droid>(dbContext));
       // Register a Human store. 
       ServiceProvider.Instance.Singleton<MockClient<Human>>(() => new MockClient<Human>(dbContext));
+      // Register Root.
+      // ServiceProvider.Instance.Singleton<MockClient<Root>>(() => new MockClient<Root>(dbContext));
 
-      var q = new GQLQuery<Droid>();
+      var q = new GQLQuery<Root>();
+      var d = new GQLQuery<Droid>();
+      var h = new GQLQuery<Human>();
+      
+      q.AppendQuery(d.getGraphType(), h.getGraphType());
+
       var schema = new Schema { Query = q.getGraphType() };
       // Run(schema);
       RunFromFile(schema);

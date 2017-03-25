@@ -12,6 +12,12 @@ namespace Store.GraphQL {
     public GQLQuery(string tyName) : base(tyName) { }
     public GQLQuery(Type ty) : base(ty) { }
 
+    public void AppendQuery(params ObjectGraphType[] queries) {
+      foreach (var q in queries) {
+        q.Fields.Apply(f => this.getGraphType().AddField(f));
+      }
+    }
+
     protected override ObjectGraphType createResolvers() {
       // Create an anonymous type.
       var gqlObj = new ObjectGraphType();
@@ -21,6 +27,10 @@ namespace Store.GraphQL {
       // Get the corresponding GraphQLType from IoC
       var gqlType = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
 
+      // Return if Root Query.
+      if (type.Name == "Root")
+        return gqlObj;
+
       GQL.Resolvers.FuncFieldResolver<object, object> testfunc = new GQL.Resolvers.FuncFieldResolver<object, object>(
         context => {
           return store.one("version", type.Name, "id", "abc");
@@ -28,9 +38,9 @@ namespace Store.GraphQL {
       );
       // TODO: Need to define Arguments for each resolver.
       Dictionary<string, GQL.Resolvers.FuncFieldResolver<object, object>> queries = new Dictionary<string, GQL.Resolvers.FuncFieldResolver<object, object>> {
-        { "one", testfunc },
-        { "list", testfunc },
-        { "search", testfunc }
+        { "one" + type.Name, testfunc },
+        { "list" + type.Name, testfunc },
+        { "search" + type.Name, testfunc }
       };
 
       // Get Resolvers.

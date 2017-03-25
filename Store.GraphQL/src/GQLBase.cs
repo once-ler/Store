@@ -1,17 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 using GraphQL.Types;
 using Store.Interfaces;
 using Store.Models;
 using Store.IoC;
 
+using GQL = GraphQL;
+
 namespace Store.GraphQL {
+  /// <summary>
+  /// Used for RootQuery and RootMutation.
+  /// </summary>
+  public class Root : Model {}
+
   public abstract class RegisterBase<T> where T : Model {
     public RegisterBase() {
       registerType();
     }
 
     protected void registerType() {
-      // A new type deroved from ObjectGraphType<T> will be created.
+      // A new type derived from ObjectGraphType<T> will be created.
       // Type will then be added to IoC.
       var t = new GQLType<T>();
     }
