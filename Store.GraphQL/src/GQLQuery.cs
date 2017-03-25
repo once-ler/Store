@@ -12,9 +12,9 @@ namespace Store.GraphQL {
     public GQLQuery(string tyName) : base(tyName) { }
     public GQLQuery(Type ty) : base(ty) { }
 
-    public void AppendQuery(params ObjectGraphType[] queries) {
+    public void AppendQuery(params IObjectGraphType[] queries) {
       foreach (var q in queries) {
-        q.Fields.Apply(f => this.getGraphType().AddField(f));
+        q.getGraphType().Fields.Apply(f => this.getGraphType().AddField(f));
       }
     }
 

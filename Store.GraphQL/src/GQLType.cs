@@ -8,7 +8,6 @@ using Store.IoC;
 using GQL = GraphQL;
 
 namespace Store.GraphQL {
-  
   /// <summary>
   /// Assumption is that all required dependent types have been registered into the ServiceProvider.Instance IoC
   /// </summary>
