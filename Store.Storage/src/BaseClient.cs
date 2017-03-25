@@ -230,11 +230,11 @@ namespace Store {
 
       protected string tryCatch(Action act) { try { act(); } catch (Exception e) { return e.Message; } return OperatonResult.Succeeded.ToString("F"); }
       
-      protected string runSql(string sql) {
+      internal string runSql(string sql) {
         return tryCatch(() => { var runner = new CommandRunner(dbConnection); runner.Transact(new DbCommand[] { runner.BuildCommand(sql, null) }); });
       }
 
-      protected IEnumerable<dynamic> runSqlDynamic(string sql) {
+      internal IEnumerable<dynamic> runSqlDynamic(string sql) {
         var runner = new CommandRunner(dbConnection); return runner.ExecuteDynamic(sql, null);
       }
 
