@@ -223,6 +223,19 @@ namespace Store {
         }
       }
 
+      protected void convertPartyToType(string version, dynamic partipants, Type typeOfParty) {
+        if (partipants == null) return;
+        foreach (var p in partipants) {
+          var m = p as Model;
+          dynamic participantStore = ServiceProvider.Instance.GetStore(typeOfParty.Name);          
+          var participant = participantStore.one(version, typeOfParty.Name, "id", m.id);
+
+          var json = JsonConvert.SerializeObject(participant);
+          JObject o = JObject.Parse(json);
+          p.party = o.ToObject(typeOfParty);
+        }
+      }
+
       /*
        * NewSQL Specific Methods
        */
@@ -230,11 +243,11 @@ namespace Store {
 
       protected string tryCatch(Action act) { try { act(); } catch (Exception e) { return e.Message; } return OperatonResult.Succeeded.ToString("F"); }
       
-      internal string runSql(string sql) {
+      public string runSql(string sql) {
         return tryCatch(() => { var runner = new CommandRunner(dbConnection); runner.Transact(new DbCommand[] { runner.BuildCommand(sql, null) }); });
       }
 
-      internal IEnumerable<dynamic> runSqlDynamic(string sql) {
+      public IEnumerable<dynamic> runSqlDynamic(string sql) {
         var runner = new CommandRunner(dbConnection); return runner.ExecuteDynamic(sql, null);
       }
 

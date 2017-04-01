@@ -164,7 +164,7 @@ namespace Store.Storage {
         List<Type> baseTypes = ty.InheritsFrom();
         var affiliationWrapper = baseTypes.TakeWhile(t => t != typeof(Model)).LastOrDefault();
         // "party" of Participant and is unknown at runtime.
-        if (affiliationWrapper != null && affiliationWrapper.Name == "Affiliation`1" && typeOfParty != null) convertPartyToType(rec.current.roster, typeOfParty);
+        if (affiliationWrapper != null && affiliationWrapper.Name == "Affiliation`1" && typeOfParty != null) convertPartyToType(version, rec.current.roster, typeOfParty);
         if (typeof(U) == typeof(T)) return rec.current;
         return rec;        
       }
