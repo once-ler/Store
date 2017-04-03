@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Store.Models;
+using Store.Enumerations;
 
 namespace Store {
   namespace Interfaces {
@@ -56,16 +57,18 @@ namespace Store {
     /// </summary>
     /// <typeparam name="T">A type that implements IModel.</typeparam>
     public interface IStore<T> where T : class, IModel {
-      
+
       /// <summary>
       /// Fetch a limited number of IModel records for a VersionControl.
       /// Typically, this array will be serialized as a JSON array and sent to a client in a web application.
       /// </summary>
       /// <param name="version">The VersionControl identifier for this IModel.</param>
-      /// <param name="offset">The number to start the search.</param>
-      /// <param name="limit">The total number of records to search.</param>
+      /// <param name="offset">The index number to start the list.</param>
+      /// <param name="limit">The total number of records to list.</param>
+      /// <param name="sortKey">The field name to use when performing a sort.</param>
+      /// <param name="sortDirection">The sort direction of sort key used for the records to list.</param>
       /// <returns>List of IModel records.</returns>
-      List<Record<T>> list(string version, int offset, int limit);
+      List<Record<T>> list(string version, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
       /// <summary>
       /// Provided a run-time dynamic object, convert it to a statically typed Record of an IModel.
@@ -157,8 +160,10 @@ namespace Store {
       /// <param name="search">The value for the key field to search.</param>
       /// <param name="offset">The index from which the search results should start.</param>
       /// <param name="limit">The limit of records to return.  Ideally, the limit should be realistic.</param>
+      /// <param name="sortKey">The field name to use when performing a sort.</param>
+      /// <param name="sortDirection">The sort direction of sort key used for the records to search.</param>
       /// <returns>Collection of Record{IModel} if successful.  Empty collection if failure.</returns>
-      List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10);
+      List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
       /// <summary>
       /// Count IModel records for a VersionControl that meets the search criteria.
@@ -191,8 +196,7 @@ namespace Store {
       /// <param name="recordId">The id of the Record type for an Affiliation.  An Affiliation can also be derived.  i.e. RebelAlliance, Empire, TradeFederation, Resistance, etc.</param>
       /// <param name="partyId">The id that uniquely identifies the Model referenced in the "party" attribute of the Participant.</param>
       /// <returns></returns>
-      Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant;
+      Record<Affiliation<U>> disassociate<U>(string version, string recordId, string partyId) where U : Participant;      
     }
-    
   }  
 }

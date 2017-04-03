@@ -46,10 +46,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Store.Models">
-      <HintPath>..\Store.Storage.Pgsql\bin\Debug\Store.Models.dll</HintPath>
+      <HintPath>..\Store.Models\bin\Debug\Store.Models.dll</HintPath>
     </Reference>
     <Reference Include="Store.Storage">
-      <HintPath>..\Store.Storage.Pgsql\bin\Debug\Store.Storage.dll</HintPath>
+      <HintPath>..\Store.Storage\bin\Debug\Store.Storage.dll</HintPath>
     </Reference>
     <Reference Include="Store.Storage.Pgsql">
       <HintPath>..\Store.Storage.Pgsql\bin\Debug\Store.Storage.Pgsql.dll</HintPath>

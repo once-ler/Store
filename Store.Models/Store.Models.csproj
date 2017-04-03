@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Enumerations.cs" />
     <Compile Include="src\Extensions.cs" />
     <Compile Include="src\Interfaces.cs" />
     <Compile Include="src\IoC\ServiceProvider.cs" />

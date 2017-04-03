@@ -7,6 +7,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Store.Interfaces;
+using Store.Enumerations;
 using Store.Models;
 using Store.IoC;
 using Store.Storage.Data;
@@ -26,8 +27,10 @@ namespace Store {
       /// <param name="version"></param>
       /// <param name="offset"></param>
       /// <param name="limit"></param>
+      /// <param name="sortKey"></param>
+      /// <param name="sortDirection"></param>
       /// <returns></returns>
-      public abstract List<Record<T>> list(string version, int offset, int limit);
+      public abstract List<Record<T>> list(string version, int offset, int limit, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
       /// <summary>
       /// save must be overridden.
@@ -46,8 +49,10 @@ namespace Store {
       /// <param name="search"></param>
       /// <param name="offset"></param>
       /// <param name="limit"></param>
+      /// <param name="sortKey"></param>
+      /// <param name="sortDirection"></param>
       /// <returns></returns>
-      public abstract List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10);
+      public abstract List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
       public abstract long count(string version, string field = null, string search = null);
 

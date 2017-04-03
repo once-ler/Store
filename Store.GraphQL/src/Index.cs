@@ -8,6 +8,7 @@ using GraphQL.Types;
 using GraphQL.Http;
 using Store.Models;
 using Store.Interfaces;
+using Store.Enumerations;
 using Store.IoC;
 using Store.Storage;
 using Store.GraphQL.Util;
@@ -36,9 +37,9 @@ namespace Store.GraphQL {
   // Mock Client
   public class MockClient<T> : BaseClient<T>, IStore<T> where T : class, IModel, new() {
     public MockClient(DBContext _dbContext) : base(_dbContext) { }
-    public override List<Record<T>> list(string version, int offset, int limit) { throw new NotImplementedException(); }
+    public override List<Record<T>> list(string version, int offset, int limit, string sortKey, SortDirection sortDirection) { throw new NotImplementedException(); }
     public override U save<U>(string version, U doc) { throw new NotImplementedException(); }
-    public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10) { throw new NotImplementedException(); }
+    public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc) { throw new NotImplementedException(); }
     protected override string createSchema(string version) { throw new NotImplementedException(); }
     protected override string createStore(string version, string store) { throw new NotImplementedException(); }
     protected override string upsertStore(string version, Record<T> rec) { throw new NotImplementedException(); }

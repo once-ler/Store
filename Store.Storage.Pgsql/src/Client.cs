@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 using Store.Interfaces;
+using Store.Enumerations;
 using Store.Models;
 using Store.IoC;
 using Store.Storage;
@@ -21,11 +22,11 @@ namespace Store.Storage {
         dbConnection = fac.Get(_dbContext);
       }
       
-      public override List<Record<T>> list(string version, int offset, int limit) {
+      public override List<Record<T>> list(string version, int offset, int limit, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc) {
         var resp = runner<dynamic>(
           () => createSchema(version),
           () => createStore(version, resolveTypeToString<T>()),
-          () => runSqlDynamic(string.Format("select * from {0}.{1} order by id desc offset {2} limit {3}", new object[] { version, this.resolveTypeToString<T>(), offset.ToString(), limit.ToString() }))
+          () => runSqlDynamic(string.Format("select * from {0}.{1} order by current->>'{4}' {5} offset {2} limit {3}", new object[] { version, this.resolveTypeToString<T>(), offset.ToString(), limit.ToString(), sortKey, sortDirection.ToString() }))
         );
         var results = resp.LastOrDefault() as IEnumerable<dynamic>;
         
@@ -78,13 +79,13 @@ namespace Store.Storage {
         return typeof(U) == typeof(T) ? destRec.current as U : destRec as U;
       }
       
-      public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10) {
+      public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc) {
         if (limit < 0 || limit > 500) throw new NotSupportedException("The limit for search must be between 1 and 500.");
         
         var resp = runner<dynamic>(
           () => createSchema(version),
           () => createStore(version, resolveTypeToString<T>()),
-          () => runSqlDynamic(string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' offset {4} limit {5}", new object[] { version, this.resolveTypeToString<T>(), field, search, offset.ToString(), limit.ToString() }))
+          () => runSqlDynamic(string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' order by current->>'{6}' {7} offset {4} limit {5}", new object[] { version, this.resolveTypeToString<T>(), field, search, offset.ToString(), limit.ToString(), sortKey, sortDirection.ToString() }))
         );
         var results = resp.LastOrDefault() as IEnumerable<dynamic>;
 
