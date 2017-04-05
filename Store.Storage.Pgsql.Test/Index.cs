@@ -568,6 +568,41 @@ namespace Store.Storage.Pgsql.Test {
       // empireExtendedClient.disassociate<ParticipantExtended>(someVersion, empireExtendedObj.id, droidExtended.id);
 
       // ----------------------------------------------------------------------------------------------------------
+      // Affiliation should fetch the latest party record.
+      ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(dbContext));
+      ServiceProvider.Instance.Singleton<Client<RebelAlliance>>(() => new Client<RebelAlliance>(dbContext));
+
+      Record<RebelAlliance> currentRebelAlliance = null;
+      Human currentLeia = null;
+
+      var humanClient = ServiceProvider.Instance.GetService<HumanClient<Human>>();
+      var generalLeia = new Human { id = "organa-leia", name = "Leia Organa" };
+      humanClient.save(someVersion, generalLeia);
+
+      var rebelAllianceClient = ServiceProvider.Instance.GetService<Client<RebelAlliance>>();
+      var rebelAlliance = new RebelAlliance { id = "rebel-alliance", name = "The Rebel Alliance", ts = DateTime.Now, roster = { } };
+      rebelAllianceClient.save(someVersion, rebelAlliance);
+
+      // Associate Leia to Rebel Alliance.
+      rebelAllianceClient.associate<Participant, Human>(someVersion, "rebel-alliance", generalLeia.id);
+      
+      // Get the latest participants to Rebel Alliance.
+      currentRebelAlliance = rebelAllianceClient.one<Record<RebelAlliance>>(someVersion, "id", "rebel-alliance", typeof(Human));
+
+      currentLeia = currentRebelAlliance.current.roster.FirstOrDefault(d => d.id == "organa-leia").party;
+      Console.WriteLine(currentLeia.name);
+
+      // Leia married Han. Update Leia's name.
+      generalLeia.name = "Leia Organa Solo";
+      humanClient.save(someVersion, generalLeia);
+
+      // Get the latest participants to Rebel Alliance.
+      currentRebelAlliance = rebelAllianceClient.one<Record<RebelAlliance>>(someVersion, "id", "rebel-alliance", typeof(Human));
+      currentLeia = currentRebelAlliance.current.roster.FirstOrDefault(d => d.id == "organa-leia").party;
+      // Name should now be Leia Organa Solo.
+      Console.WriteLine(currentLeia.name);
+
+      // ----------------------------------------------------------------------------------------------------------
       // Calling one when version and schema does not exist will not throw
       var fac = new Factory<NpgsqlConnection>();
       var dbConnection = fac.Get(dbContext);
