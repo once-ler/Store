@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1456C23B-3D90-490F-B916-5540EB7C1FC7}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Store.Storage.Pgsql.Test</RootNamespace>
     <AssemblyName>Store.Storage.Pgsql.Test</AssemblyName>

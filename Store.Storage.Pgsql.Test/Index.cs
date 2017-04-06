@@ -22,17 +22,17 @@ namespace Store.Storage.Pgsql.Test {
     string foo_bar_1 = "foo bar 1";
     string foo_bar_2 = "foo bar 2";
     string someVersion = "v$12345678";
+    DBContext dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
 
     void before_each() {
-      this.dbContext = new DBContext { server = "127.0.0.1", port = 5432, database = "pccrms", userId = "editor", password = "editor" };
-      ServiceProvider.Instance.Singleton(() => new VersionControlManager(this.dbContext));
-      ServiceProvider.Instance.Singleton<PersonnelClient<Personnel>>(() => new PersonnelClient<Personnel>(this.dbContext));
-      ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(this.dbContext));
-      ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(this.dbContext));
-      ServiceProvider.Instance.Singleton<RebelAllianceClient<RebelAlliance>>(() => new RebelAllianceClient<RebelAlliance>(this.dbContext));
-      ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(this.dbContext));
-      ServiceProvider.Instance.Singleton<Client<EmpireExtended>>(() => new Client<EmpireExtended>(this.dbContext));
-      ServiceProvider.Instance.Singleton<Client<DroidExtended>>(() => new Client<DroidExtended>(this.dbContext));
+      ServiceProvider.Instance.Singleton(() => new VersionControlManager(dbContext));
+      ServiceProvider.Instance.Singleton<PersonnelClient<Personnel>>(() => new PersonnelClient<Personnel>(dbContext));
+      ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
+      ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(dbContext));
+      ServiceProvider.Instance.Singleton<RebelAllianceClient<RebelAlliance>>(() => new RebelAllianceClient<RebelAlliance>(dbContext));
+      ServiceProvider.Instance.Singleton<EmpireClient<Empire>>(() => new EmpireClient<Empire>(dbContext));
+      ServiceProvider.Instance.Singleton<Client<EmpireExtended>>(() => new Client<EmpireExtended>(dbContext));
+      ServiceProvider.Instance.Singleton<Client<DroidExtended>>(() => new Client<DroidExtended>(dbContext));
       ServiceProvider.Instance.Register("Empire", typeof(Empire));
 
       personnel = null;
@@ -53,8 +53,8 @@ namespace Store.Storage.Pgsql.Test {
 
       describe["setting multiple instances of same type"] = () => {
         before = () => {
-          ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(this.dbContext));
-          ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(this.dbContext));
+          ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
+          ServiceProvider.Instance.Singleton<DroidClient<Droid>>(() => new DroidClient<Droid>(dbContext));
         };
         it["should not throw an error"] = () => Console.WriteLine("this message safely displayed after multiple calls to create same type");
       };
@@ -467,23 +467,77 @@ namespace Store.Storage.Pgsql.Test {
       };
 
       describe["when creating a new collection"] = () => {
-        var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
-
         before = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
           var droid = new Droid { id = "R2-D2", name = "R2-D2", ts = DateTime.Now };
           droidClient.save(someVersion, droid);
         };
 
         act = () => {
+          var droidClient = ServiceProvider.Instance.GetService<DroidClient<Droid>>();
           droid = droidClient.one<Droid>(someVersion, "id", "R2-D2");
         };
 
         it["the name of the droid"] = () => droid.name.should_be("R2-D2");
       };
 
+      describe["when updating a party after associating it to an affiliation"] = () => {
+        ServiceProvider.Instance.Singleton<HumanClient<Human>>(() => new HumanClient<Human>(dbContext));
+        ServiceProvider.Instance.Singleton<Client<RebelAlliance>>(() => new Client<RebelAlliance>(dbContext));
+
+        var humanClient = ServiceProvider.Instance.GetService<HumanClient<Human>>();
+        var rebelAllianceClient = ServiceProvider.Instance.GetService<Client<RebelAlliance>>();
+
+        Record<RebelAlliance> currentRebelAlliance = null;
+        Human currentLeia = null;
+
+        before = () => {
+          var generalLeia = new Human { id = "organa-leia", name = "Leia Organa" };
+          humanClient.save(someVersion, generalLeia);
+
+          var rebelAlliance = new RebelAlliance { id = "rebel-alliance", name = "The Rebel Alliance", ts = DateTime.Now, roster = { } };
+          rebelAllianceClient.save(someVersion, rebelAlliance);
+        };
+
+        describe["can associate a party to an affiliation"] = () => {
+          before = () => {
+            // Get saved Leia.
+            currentLeia = humanClient.one<Human>(someVersion, "id", "organa-leia");
+
+            // Associate Leia to Rebel Alliance.
+            rebelAllianceClient.associate<Participant, Human>(someVersion, "rebel-alliance", currentLeia.id);
+          };
+
+          act = () => {
+            // Get the latest participants to Rebel Alliance.
+            currentRebelAlliance = rebelAllianceClient.one<Record<RebelAlliance>>(someVersion, "id", "rebel-alliance", typeof(Human));
+            currentLeia = currentRebelAlliance.current.roster.FirstOrDefault(d => d.id == "organa-leia").party;
+          };
+
+          it["the name of the party in the current roster"] = () => currentLeia.name.should_be("Leia Organa");
+
+          describe["can get the latest changes to a party from a roster"] = () => {
+            before = () => {
+              // Get saved Leia.
+              currentLeia = humanClient.one<Human>(someVersion, "id", "organa-leia");
+
+              // Leia married Han. Update Leia's name.
+              currentLeia.name = "Leia Organa Solo";
+              humanClient.save(someVersion, currentLeia);
+            };
+
+            act = () => {
+              // Get the latest participants to Rebel Alliance.
+              currentRebelAlliance = rebelAllianceClient.one<Record<RebelAlliance>>(someVersion, "id", "rebel-alliance", typeof(Human));
+              currentLeia = currentRebelAlliance.current.roster.FirstOrDefault(d => d.id == "organa-leia").party;
+            };
+
+            it["the name of the party in the current roster"] = () => currentLeia.name.should_be("Leia Organa Solo");
+          };
+        };        
+      };
     }
 
-    private DBContext dbContext;
     private DroidClient<Droid> droidClient;
     private DroidClient<Droid> droidClientA;
     private DroidClient<Droid> droidClientB;
