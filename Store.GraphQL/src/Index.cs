@@ -12,6 +12,7 @@ using Store.Enumerations;
 using Store.IoC;
 using Store.Storage;
 using Store.GraphQL.Util;
+using Store.GraphQL.Query;
 
 using GQL = GraphQL;
 
@@ -82,7 +83,7 @@ namespace Store.GraphQL {
         _.Schema = schema;
         _.Query = @"
                 query {
-                  one {
+                  oneDroid(version: ""abc"", field: ""id"", value: ""4"") {
                     id
                     name
                     integer1
@@ -116,7 +117,7 @@ namespace Store.GraphQL {
       */
 
       var q = RootQuery.Get();
-
+      
       var d = new GQLQuery<Droid>();
       var h = new GQLQuery<Human>();
 
@@ -184,12 +185,6 @@ namespace Store.GraphQL {
       // Create simple query
       var query = new ObjectGraphType();
       query.Name = "DroidQuery";
-      FieldType fty = new FieldType {
-        Type = obj.GetType(),
-        Name = "one",
-        Resolver = new OneResolver(typeof(System.Object))
-      };
-      query.AddField(fty);
 
       /*
       // Register the type in the Locator

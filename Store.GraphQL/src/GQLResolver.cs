@@ -1,42 +1,80 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Store.Models;
 using Store.IoC;
+using Store.GraphQL.Query;
 using GraphQL.Types;
 using GQL = GraphQL;
 
 // Will probably remove these classes.
-namespace Store.GraphQL {
-  class OneResolver : GQL.Resolvers.IFieldResolver{
-    public OneResolver(Type ty) {
-      ty_ = ty;
-    }
-    public object Resolve(ResolveFieldContext context) {
-      return System.Activator.CreateInstance(ty_);
-      // return new ty_();
-    }
-    private Type ty_;
-  };
+namespace Store.GraphQL.Resolver {
+  class OneResolver<T> : FieldType where T : Model {
+    public OneResolver(GQLQuery<T> query) {
+      var gqlType = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
 
-  class ListResolverOrig : GQL.Resolvers.IFieldResolver {
-    public object Resolve(ResolveFieldContext context) {
-      return new List<object>();
+      Name = "one" + typeof(T).Name;
+      Type = gqlType;
+      Arguments = new QueryArguments(
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "version", Description = "VersionControl of " + gqlType.Name },
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "field", Description = "The key field to search" },
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "value", Description = "The value for the key field to search." }
+      );
+      Resolver = new GQL.Resolvers.FuncFieldResolver<object, object>(
+        context => {
+          return query.store.one(
+            context.GetArgument<string>("version"),
+            typeof(T).Name,
+            context.GetArgument<string>("field"),
+            context.GetArgument<string>("value")
+          );
+        }
+      );
     }
-  };
-
+  }
+  
   class ListResolver<T>: FieldType where T: Model {
     public ListResolver(GQLQuery<T> query) {
       var gqlType = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
 
-      Name = "list";
+      Name = "list" + typeof(T).Name;
       Type = gqlType;
+      Arguments = new QueryArguments(
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "version", Description = "VersionControl of " + gqlType.Name },
+        new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "offset", Description = "The index number to start the list." },
+        new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "limit", Description = "The total number of records to list." }
+      );
       Resolver = new GQL.Resolvers.FuncFieldResolver<object, object>(
         context => {
-          // return query.store.list("version", query.type.Name, "id", "abc");
-          return null;
+          return query.store.list(
+            context.GetArgument<string>("version"),
+            context.GetArgument<int>("offset"),
+            context.GetArgument<int>("limit")
+          );
         }
       );
     }    
+  }
+
+  class SearchResolver<T> : FieldType where T : Model {
+    public SearchResolver(GQLQuery<T> query) {
+      var gqlType = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
+
+      Name = "search" + typeof(T).Name;
+      Type = gqlType;
+      Arguments = new QueryArguments(
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "version", Description = "VersionControl of " + gqlType.Name },
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "field", Description = "The key field to search" },
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "search", Description = "The value for the key field to search." }
+      );
+      Resolver = new GQL.Resolvers.FuncFieldResolver<object, object>(
+        context => {
+          return query.store.search(
+            context.GetArgument<string>("version"),
+            context.GetArgument<string>("field"),
+            context.GetArgument<string>("search")
+          );
+        }
+      );
+    }
   }
 
   class SearchResolver : GQL.Resolvers.IFieldResolver {

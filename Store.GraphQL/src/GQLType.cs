@@ -4,17 +4,20 @@ using GraphQL;
 using GraphQL.Types;
 using FastMember;
 using Store.IoC;
+using Store.GraphQL.Interface;
 
 using GQL = GraphQL;
 
 namespace Store.GraphQL {
   /// <summary>
   /// Assumption is that all required dependent types have been registered into the ServiceProvider.Instance IoC
+  /// All types will implement Interface ModelType.
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public class GQLType<T> : ObjectGraphType<T> {
     public GQLType() {
       Name = getGraphQlTypeName();
+      Interface<ModelType>();
       IsTypeOf = value => value is T;
       createResolvers();
     }
@@ -54,6 +57,11 @@ namespace Store.GraphQL {
         var primiTy = f.Type.FromPrimitiveToGraphQLType();
         if (primiTy != null) {
           fld.Type = primiTy;
+          // Is this an id?
+          if (fld.Name == "id") {
+            fld.Type = typeof(NonNullGraphType<StringGraphType>);
+          }
+
           // Is this default necessary?
           if (fld.Type == typeof(DateGraphType)) {
             fld.DefaultValue = DateTime.Now;

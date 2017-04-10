@@ -38,8 +38,8 @@
       <HintPath>..\packages\FastMember.1.1.0\lib\net40\FastMember.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GraphQL, Version=0.14.0.633, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GraphQL.0.14.0.633\lib\net45\GraphQL.dll</HintPath>
+    <Reference Include="GraphQL, Version=0.15.1.678, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GraphQL.0.15.1.678\lib\net45\GraphQL.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="GraphQL-Parser, Version=2.0.0.17, Culture=neutral, processorArchitecture=MSIL">
@@ -69,6 +69,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\GQLBase.cs" />
     <Compile Include="src\GQLExtensions.cs" />
+    <Compile Include="src\GQLInterface.cs" />
     <Compile Include="src\Index.cs" />
     <Compile Include="src\GQLMutation.cs" />
     <Compile Include="src\GQLQuery.cs" />

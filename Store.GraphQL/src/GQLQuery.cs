@@ -4,8 +4,9 @@ using GQL = GraphQL;
 using System.Collections.Generic;
 using Store.Models;
 using Store.IoC;
+using Store.GraphQL.Resolver;
 
-namespace Store.GraphQL {
+namespace Store.GraphQL.Query {
   public static class RootQuery {
     public static GQLQuery<Root> Get() {
       var q = new GQLQuery<Root>();
@@ -41,26 +42,38 @@ namespace Store.GraphQL {
       if (type.Name == "Root")
         return gqlObj;
 
+      /*
       GQL.Resolvers.FuncFieldResolver<object, object> testfunc = new GQL.Resolvers.FuncFieldResolver<object, object>(
         context => {
           return store.one("version", type.Name, "id", "abc");
         }
       );
-      // TODO: Need to define Arguments for each resolver.
+
       Dictionary<string, GQL.Resolvers.FuncFieldResolver<object, object>> queries = new Dictionary<string, GQL.Resolvers.FuncFieldResolver<object, object>> {
         { "one" + type.Name, testfunc },
         { "list" + type.Name, testfunc },
         { "search" + type.Name, testfunc }
       };
 
-      // Get Resolvers.
-      var listResolver = new ListResolver<T>(this);
-
       foreach (var item in queries) {
         var fld = new FieldType { Name = item.Key, Resolver = testfunc, Type = gqlType };
         gqlObj.AddField(fld);
-      } 
+      }
+      */
 
+      Dictionary<string, FieldType> fieldQueries = new Dictionary<string, FieldType>() {
+        { "one", new OneResolver<T>(this)},
+        { "list", new ListResolver<T>(this)},
+        { "search", new SearchResolver<T>(this)}
+      };
+
+      // Get Resolvers.
+      // var listResolver = new ListResolver<T>(this);
+      
+      foreach (var item in fieldQueries) {
+        gqlObj.AddField(item.Value);
+      }
+      
       return gqlObj;
     }
   }
