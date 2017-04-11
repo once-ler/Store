@@ -4,6 +4,7 @@ using GQL = GraphQL;
 using System.Collections.Generic;
 using Store.Models;
 using Store.IoC;
+using Store.GraphQL.Interface;
 using Store.GraphQL.Resolver;
 
 namespace Store.GraphQL.Query {
@@ -39,8 +40,10 @@ namespace Store.GraphQL.Query {
       var gqlType = ServiceProvider.Instance.GetType(typeof(T).Name + "Type");
 
       // Return if Root Query.
-      if (type.Name == "Root")
+      if (type.Name == "Root") {
+        createRootResolvers(gqlObj);
         return gqlObj;
+      }
 
       /*
       GQL.Resolvers.FuncFieldResolver<object, object> testfunc = new GQL.Resolvers.FuncFieldResolver<object, object>(
@@ -60,7 +63,7 @@ namespace Store.GraphQL.Query {
         gqlObj.AddField(fld);
       }
       */
-
+      
       Dictionary<string, FieldType> fieldQueries = new Dictionary<string, FieldType>() {
         { "one", new OneResolver<T>(this)},
         { "list", new ListResolver<T>(this)},
@@ -75,6 +78,33 @@ namespace Store.GraphQL.Query {
       }
       
       return gqlObj;
+    }
+
+    protected void createRootResolvers(ObjectGraphType q) {
+      var oneResolver = new FieldType {
+        Name = "one",
+        Arguments = new QueryArguments(
+            new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "version", Description = "VersionControl" },
+            new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "type", Description = "The Store model type" },
+            new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "field", Description = "The key field to search" },
+            new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "value", Description = "The value for the key field to search." }
+          ),
+        Resolver = new GQL.Resolvers.FuncFieldResolver<object, object>(
+            context => {
+              string ty = context.GetArgument<string>("type").Replace("Type", "");
+              dynamic store = ServiceProvider.Instance.GetStore(ty);
+
+              return store.one(
+                context.GetArgument<string>("version"),
+                ty,
+                context.GetArgument<string>("field"),
+                context.GetArgument<string>("value")
+              );
+            }
+          )
+      };
+
+      q.AddField(oneResolver);
     }
   }
 }

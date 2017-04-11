@@ -1,5 +1,6 @@
 ﻿using GraphQL.Types;
 using Store.Models;
+using Store.IoC;
 
 namespace Store.GraphQL.Interface {
   public class ModelType : InterfaceGraphType<Model> {
