@@ -71,6 +71,19 @@ namespace Store {
       List<Record<T>> list(string version, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
       /// <summary>
+      /// Fetch a limited number of IModel records for a VersionControl.
+      /// Targeted use by GraphQL RootType Query.
+      /// </summary>
+      /// <param name="version">The VersionControl identifier for this IModel.</param>
+      /// <param name="typeOfStore">Name of store model as a string.</param>
+      /// <param name="offset">The index number to start the list.</param>
+      /// <param name="limit">The total number of records to list.</param>
+      /// <param name="sortKey">The field name to use when performing a sort.</param>
+      /// <param name="sortDirection">The sort direction of sort key used for the records to list.</param>
+      /// <returns>List of IModel records.</returns>
+      List<dynamic> list(string version, string typeOfStore, int offset, int limit, string sortKey = "id", string sortDirection = "Asc");
+
+      /// <summary>
       /// Provided a run-time dynamic object, convert it to a statically typed Record of an IModel.
       /// Note:
       /// This is typically used internally by the IStore implementation when data is fetched from the store and must be deserialized into a statically typed object.

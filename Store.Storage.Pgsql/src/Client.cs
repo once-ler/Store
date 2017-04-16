@@ -38,7 +38,26 @@ namespace Store.Storage {
         }
         return list;
       }
-      
+
+      public override List<dynamic> list(string version, string typeOfStore, int offset, int limit, string sortKey = "id", string sortDirection = "Asc") {
+        var resp = runner<dynamic>(
+          () => createSchema(version),
+          () => createStore(version, typeOfStore),
+          () => runSqlDynamic(string.Format("select * from {0}.{1} order by current->>'{4}' {5} offset {2} limit {3}", new object[] { version, typeOfStore, offset.ToString(), limit.ToString(), sortKey, sortDirection }))
+        );
+        var results = resp.LastOrDefault() as IEnumerable<dynamic>;
+
+        List<dynamic> list = new List<dynamic>();
+
+        var ty = ServiceProvider.Instance.GetType(typeOfStore);
+
+        foreach (var d in results) {
+          JObject o = JObject.Parse(d.current);
+          list.Add(o.ToObject(ty));
+        }
+        return list;
+      }
+
       public override U save<U>(string version, U doc) {
         var dy = doc as dynamic;
         var id = typeof(U) == typeof(T) ? dy.id : dy.current.id;

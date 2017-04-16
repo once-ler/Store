@@ -70,6 +70,7 @@
     <Compile Include="src\GQLBase.cs" />
     <Compile Include="src\GQLExtensions.cs" />
     <Compile Include="src\GQLInterface.cs" />
+    <Compile Include="src\GQLResolver.Root.cs" />
     <Compile Include="src\Index.cs" />
     <Compile Include="src\GQLMutation.cs" />
     <Compile Include="src\GQLQuery.cs" />

@@ -33,6 +33,18 @@ namespace Store {
       public abstract List<Record<T>> list(string version, int offset, int limit, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
       /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="typeOfStore"></param>
+      /// <param name="offset"></param>
+      /// <param name="limit"></param>
+      /// <param name="sortKey"></param>
+      /// <param name="sortDirection"></param>
+      /// <returns></returns>
+      public abstract List<dynamic> list(string version, string typeOfStore, int offset, int limit, string sortKey = "id", string sortDirection = "Asc");
+
+      /// <summary>
       /// save must be overridden.
       /// </summary>
       /// <typeparam name="U"></typeparam>

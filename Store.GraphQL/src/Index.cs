@@ -117,7 +117,7 @@ namespace Store.GraphQL {
       */
 
       var q = RootQuery.Get();
-      
+
       var d = new GQLQuery<Droid>();
       var h = new GQLQuery<Human>();
 

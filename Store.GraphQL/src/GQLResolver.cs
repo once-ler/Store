@@ -5,7 +5,6 @@ using Store.GraphQL.Query;
 using GraphQL.Types;
 using GQL = GraphQL;
 
-// Will probably remove these classes.
 namespace Store.GraphQL.Resolver {
   class OneResolver<T> : FieldType where T : Model {
     public OneResolver(GQLQuery<T> query) {
