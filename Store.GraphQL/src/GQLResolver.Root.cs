@@ -5,7 +5,7 @@ using GQL = GraphQL;
 
 namespace Store.GraphQL.Resolver.Root {
   class OneResolver : FieldType  {
-    Type gqlType = ServiceProvider.Instance.GetType("RootQueryType");
+    Type gqlType = ServiceProvider.Instance.GetType("RootType");
 
     public OneResolver() {
       Name = "one";
@@ -33,7 +33,7 @@ namespace Store.GraphQL.Resolver.Root {
   }
 
   class ListResolver : FieldType {
-    Type gqlType = ServiceProvider.Instance.GetType("RootQueryType");
+    Type gqlType = ServiceProvider.Instance.GetType("RootType");
 
     public ListResolver() {
       Name = "list";

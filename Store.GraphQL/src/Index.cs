@@ -6,6 +6,7 @@ using FastMember;
 using GraphQL;
 using GraphQL.Types;
 using GraphQL.Http;
+using GraphQL.Validation;
 using Store.Models;
 using Store.Interfaces;
 using Store.Enumerations;
@@ -13,6 +14,7 @@ using Store.IoC;
 using Store.Storage;
 using Store.GraphQL.Util;
 using Store.GraphQL.Query;
+using Store.GraphQL.Authorization;
 
 using GQL = GraphQL;
 
@@ -39,6 +41,7 @@ namespace Store.GraphQL {
   public class MockClient<T> : BaseClient<T>, IStore<T> where T : class, IModel, new() {
     public MockClient(DBContext _dbContext) : base(_dbContext) { }
     public override List<Record<T>> list(string version, int offset, int limit, string sortKey, SortDirection sortDirection) { throw new NotImplementedException(); }
+    public override List<dynamic> list(string version, string typeOfStore, int offset, int limit, string sortKey = "id", string sortDirection = "Asc") { throw new NotImplementedException(); }
     public override U save<U>(string version, U doc) { throw new NotImplementedException(); }
     public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc) { throw new NotImplementedException(); }
     protected override string createSchema(string version) { throw new NotImplementedException(); }
@@ -97,6 +100,69 @@ namespace Store.GraphQL {
       Console.WriteLine(json);
     }
 
+    /// <summary>
+    /// Pattern should be to handle authentication outside of GraphQL.
+    /// schema logic handle authorization.
+    /// app.use('/graphql', (request, response, next) => {
+    /// </summary>
+    /// <param name="schema"></param>
+    private static async void RunAuth(Schema schema) {
+
+      /*
+        // Example 1:
+        app.use('/graphql', (request, response, next) => {
+          const viewer = getViewerFromRequest(); // You provide this.
+          const options = {
+            rootValue: {
+              viewer,
+            },
+            schema,
+          };
+
+          return graphqlHTTP(request => options)(request, response, next);
+        });
+
+        // Place authToken in 3rd parameter (ie, Context) 
+        resolve: (parent, args, authToken, {rootValue}) => {
+          // Code that uses the auth token here...
+        }
+
+        // Example 2:
+        app.use('/graphql', (req, res) => {
+          graphqlHTTP({ schema: Schema, context: { user: req.user } })(req, res);
+        }
+
+        resolve(parent, args, context){
+          if(!context.user.isAdmin){
+            args.isPublic = true;
+          }
+          return PostModel.find(args).exec();
+        }
+      */
+
+      var result = await new DocumentExecuter().ExecuteAsync(_ => {
+        _.Schema = schema;
+        _.Query = @"
+                query {
+                  oneDroid(version: ""abc"", field: ""id"", value: ""4"") {
+                    id
+                    name
+                    integer1
+                  }
+                }
+              ";
+        _.UserContext = new GraphQLUserContext {
+          AuthToken = "VGhpcyBpcyBzb21lIHBhc3N3b3Jk",
+          User = new UserContext { IsAuthenticated = () => true }
+        };
+        _.ValidationRules = new List<IValidationRule> { new RequiresAuthValidationRule() };
+      }).ConfigureAwait(false);
+
+      var json = new DocumentWriter(indent: true).Write(result);
+
+      Console.WriteLine(json);
+    }
+
     static void Main(string[] args) {
       
       // Must register Stores
@@ -127,7 +193,8 @@ namespace Store.GraphQL {
 
       var schema = new Schema { Query = q.getGraphType() };
       // Run(schema);
-      RunFromFile(schema);
+      // RunFromFile(schema);
+      RunAuth(schema);
     }
 
     public void experiment() {

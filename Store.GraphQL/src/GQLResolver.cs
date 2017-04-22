@@ -2,7 +2,9 @@
 using Store.Models;
 using Store.IoC;
 using Store.GraphQL.Query;
+using Store.GraphQL.Authorization;
 using GraphQL.Types;
+using GraphQL;
 using GQL = GraphQL;
 
 namespace Store.GraphQL.Resolver {
@@ -19,6 +21,9 @@ namespace Store.GraphQL.Resolver {
       );
       Resolver = new GQL.Resolvers.FuncFieldResolver<object, object>(
         context => {
+          // Check whether user is authorized.
+          var userContext = context.UserContext.As<GraphQLUserContext>();
+          
           return query.store.one(
             context.GetArgument<string>("version"),
             typeof(T).Name,
