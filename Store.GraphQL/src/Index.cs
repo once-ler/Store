@@ -44,6 +44,7 @@ namespace Store.GraphQL {
     public override List<dynamic> list(string version, string typeOfStore, int offset, int limit, string sortKey = "id", string sortDirection = "Asc") { throw new NotImplementedException(); }
     public override U save<U>(string version, U doc) { throw new NotImplementedException(); }
     public override List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc) { throw new NotImplementedException(); }
+    public override List<dynamic> search(string version, string typeOfStore, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", string sortDirection = "Asc") { throw new NotImplementedException(); }
     protected override string createSchema(string version) { throw new NotImplementedException(); }
     protected override string createStore(string version, string store) { throw new NotImplementedException(); }
     protected override string upsertStore(string version, Record<T> rec) { throw new NotImplementedException(); }

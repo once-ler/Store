@@ -117,6 +117,25 @@ namespace Store.Storage {
         return list;
       }
 
+      public override List<dynamic> search(string version, string typeOfStore, string field, string search, int offset, int limit, string sortKey = "id", string sortDirection = "Asc") {
+        var resp = runner<dynamic>(
+          () => createSchema(version),
+          () => createStore(version, typeOfStore),
+          () => runSqlDynamic(string.Format("select * from {0}.{1} where current->>'{2}' ~* '{3}' order by current->>'{6}' {7} offset {4} limit {5}", new object[] { version, this.resolveTypeToString<T>(), field, search, offset.ToString(), limit.ToString(), sortKey, sortDirection }))
+        );
+        var results = resp.LastOrDefault() as IEnumerable<dynamic>;
+
+        List<dynamic> list = new List<dynamic>();
+
+        var ty = ServiceProvider.Instance.GetType(typeOfStore);
+
+        foreach (var d in results) {
+          JObject o = JObject.Parse(d.current);
+          list.Add(o.ToObject(ty));
+        }
+        return list;
+      }
+
       public override long count(string version, string field = null, string search = null) {
         var sql = string.Format("select count(1) count from {0}.{1}", new object[] { version, this.resolveTypeToString<T>() });
         if (field != null && search != null) sql += string.Format(" where current->>'{0}' ~* '{1}'", new object[] { field, search });

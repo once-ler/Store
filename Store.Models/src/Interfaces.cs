@@ -179,6 +179,23 @@ namespace Store {
       List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
       /// <summary>
+      /// Fetch IModel records for a VersionControl that meets the search criteria.
+      /// Note:
+      /// 1. By default, only 10 IModel records will be returned.
+      /// 2. By default, POSIX regex insensitive matching will be used.
+      /// </summary>
+      /// <param name="version">The VersionControl identifier for this IModel.</param>
+      /// <param name="typeOfStore">Name of store model as a string.</param>
+      /// <param name="field">The key field to search.  If nested, use dot notation.</param>
+      /// <param name="search">The value for the key field to search.</param>
+      /// <param name="offset">The index from which the search results should start.</param>
+      /// <param name="limit">The limit of records to return.  Ideally, the limit should be realistic.</param>
+      /// <param name="sortKey">The field name to use when performing a sort.</param>
+      /// <param name="sortDirection">The sort direction of sort key used for the records to search.</param>
+      /// <returns>Collection of Record{IModel} if successful.  Empty collection if failure.</returns>
+      List<dynamic> search(string version, string typeOfStore, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", string sortDirection = "Asc");
+
+      /// <summary>
       /// Count IModel records for a VersionControl that meets the search criteria.
       /// </summary>
       /// <param name="version">The VersionControl identifier for this IModel.</param>

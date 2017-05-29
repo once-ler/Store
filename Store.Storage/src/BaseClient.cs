@@ -66,6 +66,20 @@ namespace Store {
       /// <returns></returns>
       public abstract List<Record<T>> search(string version, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", SortDirection sortDirection = SortDirection.Asc);
 
+      /// <summary>
+      /// search must be overridden.
+      /// </summary>
+      /// <param name="version"></param>
+      /// <param name="typeOfStore"></param>
+      /// <param name="field"></param>
+      /// <param name="search"></param>
+      /// <param name="offset"></param>
+      /// <param name="limit"></param>
+      /// <param name="sortKey"></param>
+      /// <param name="sortDirection"></param>
+      /// <returns></returns>
+      public abstract List<dynamic> search(string version, string typeOfStore, string field, string search, int offset = 0, int limit = 10, string sortKey = "id", string sortDirection = "Asc");
+
       public abstract long count(string version, string field = null, string search = null);
 
       public U one<U>(string version, string field, string value, Type typeOfParty = null) where U : class {
