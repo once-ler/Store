@@ -13,11 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Storage.Pgsql", "Stor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Storage.Pgsql.Test", "Store.Storage.Pgsql.Test\Store.Storage.Pgsql.Test.csproj", "{1456C23B-3D90-490F-B916-5540EB7C1FC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.GraphQL", "Store.GraphQL\Store.GraphQL.csproj", "{092755F6-9A50-44A3-8F6A-85E5F07EEEE2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3FA3D494-3C1E-4A45-B928-669A64683C70} = {3FA3D494-3C1E-4A45-B928-669A64683C70}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,10 +39,6 @@ Global
 		{1456C23B-3D90-490F-B916-5540EB7C1FC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1456C23B-3D90-490F-B916-5540EB7C1FC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1456C23B-3D90-490F-B916-5540EB7C1FC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{092755F6-9A50-44A3-8F6A-85E5F07EEEE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{092755F6-9A50-44A3-8F6A-85E5F07EEEE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{092755F6-9A50-44A3-8F6A-85E5F07EEEE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{092755F6-9A50-44A3-8F6A-85E5F07EEEE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
