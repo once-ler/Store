@@ -15,9 +15,37 @@ using Store.Storage.Data;
 namespace Store {
   namespace Storage {
 
-    public abstract class BaseClient<T> : IStore<T> where T : class, IModel, new() {
+    public class BasicClient {
+      public BasicClient(DBContext _dbContext) {
+        dbContext = _dbContext;
+      }
 
-      public BaseClient(DBContext _dbContext) {
+      /*
+       * NewSQL Specific Methods
+       */
+      protected List<A> runner<A>(params Func<A>[] actions) { List<A> results = new List<A>(); foreach (var act in actions) results.Add(act()); return results; }
+
+      protected string tryCatch(Action act) { try { act(); } catch (Exception e) { return e.Message; } return OperatonResult.Succeeded.ToString("F"); }
+
+      public string runSql(string sql) {
+        return tryCatch(() => { var runner = new CommandRunner(dbConnection); runner.Transact(new DbCommand[] { runner.BuildCommand(sql, null) }); });
+      }
+
+      public IEnumerable<dynamic> runSqlDynamic(string sql) {
+        var runner = new CommandRunner(dbConnection); return runner.ExecuteDynamic(sql, null);
+      }
+
+      /*
+       * Protected Properties 
+       */
+      protected DbConnection dbConnection;
+      protected DBContext dbContext;
+      protected enum OperatonResult { Succeeded = 1, Failed = 0 };
+    }
+
+    public abstract class BaseClient<T> : BasicClient, IStore<T> where T : class, IModel, new() {
+
+      public BaseClient(DBContext _dbContext) : base(_dbContext) {
         dbContext = _dbContext;
       }
 
@@ -266,28 +294,7 @@ namespace Store {
           p.party = o.ToObject(typeOfParty);
         }
       }
-
-      /*
-       * NewSQL Specific Methods
-       */
-      protected List<A> runner<A>(params Func<A>[] actions) { List<A> results = new List<A>(); foreach (var act in actions) results.Add(act()); return results; }
-
-      protected string tryCatch(Action act) { try { act(); } catch (Exception e) { return e.Message; } return OperatonResult.Succeeded.ToString("F"); }
       
-      public string runSql(string sql) {
-        return tryCatch(() => { var runner = new CommandRunner(dbConnection); runner.Transact(new DbCommand[] { runner.BuildCommand(sql, null) }); });
-      }
-
-      public IEnumerable<dynamic> runSqlDynamic(string sql) {
-        var runner = new CommandRunner(dbConnection); return runner.ExecuteDynamic(sql, null);
-      }
-
-      /*
-       * Protected Properties 
-       */
-      protected DbConnection dbConnection;
-      protected DBContext dbContext;
-      protected enum OperatonResult { Succeeded = 1, Failed = 0 };
     }
 
   }
