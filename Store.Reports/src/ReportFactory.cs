@@ -41,7 +41,7 @@ namespace Store.Reports {
       reportType = reportType_;
     }
 
-    public dynamic execute(BasicClient client, string statement, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> transform, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> themeFunc = null) {
+    public dynamic execute(BasicClient client, string statement, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> transform, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> themeFunc = null, params Func<IEnumerable<dynamic>, IEnumerable<dynamic>>[] userDefinedFuncs) {
       dynamic retval = null;
       try {
         retval = client.runSqlDynamic(statement);
@@ -49,7 +49,7 @@ namespace Store.Reports {
         // No op
       }
 
-      return reportType.process(retval, transform, themeFunc);
+      return reportType.process(retval, transform, themeFunc, userDefinedFuncs);
     }
         
   }
