@@ -41,7 +41,7 @@ namespace Store.Reports {
       reportType = reportType_;
     }
 
-    public dynamic execute(DBContext dbcontext, BasicClient client, string statement, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> transform, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> themeFunc = null) {
+    public dynamic execute(BasicClient client, string statement, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> transform, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> themeFunc = null) {
       dynamic retval = null;
       try {
         retval = client.runSqlDynamic(statement);
