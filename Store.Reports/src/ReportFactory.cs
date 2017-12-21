@@ -20,7 +20,7 @@ namespace Store.Reports {
 
     public string process(IEnumerable<dynamic> context, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> transformFunc, Func<IEnumerable<dynamic>, IEnumerable<dynamic>> themeFunc = null, params Func<IEnumerable<dynamic>, IEnumerable<dynamic>>[] userDefinedFuncs) {
       var e = processImpl(context, transformFunc, themeFunc);
-      e = processImpl(context, userDefinedFuncs);
+      e = processImpl(e, userDefinedFuncs);
       return string.Join("", e.Select(a => (string)a).ToArray<string>());
     }
 
