@@ -38,16 +38,18 @@ namespace Store.Reports {
 
     public Func<IEnumerable<dynamic>, IEnumerable<dynamic>> createBody(string titleName = "") {
       return (IEnumerable<dynamic> children) => {
-        var thead = string.Join("", (children.FirstOrDefault() as ExpandoObject).Select(r => r.Key.WrapWithTag("div").WrapWithTag("th"))).WrapWithTag("tr").WrapWithTag("thead");
+        var o = children.FirstOrDefault();
+        if (o == null) return new string[] { "Sorry, no data yet.".WrapWithTag("h3") };
+
+        var thead = string.Join("", (o as ExpandoObject).Select(r => r.Key.WrapWithTag("div").WrapWithTag("th"))).WrapWithTag("tr").WrapWithTag("thead");
 
         var tbody = string.Join("",
           children
             .Select(d =>
               string.Join("",
                 (
-                  (d as ExpandoObject).Select(r =>
-                    ((string)r.Value).WrapWithTag("pre").WrapWithTag("td")
-                  )
+                  (d as ExpandoObject).Select(r => 
+                    ((string)r.Value).WrapWithTag("pre").WrapWithTag("td"))
                 )
               ).WrapWithTag("tr")
             )
