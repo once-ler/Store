@@ -1,9 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.ItemProperties.Store.Reports.Formats FirstBuild="True" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports.Formats/src/Excel.fs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports.Formats/test/ExcelSpec.fs">
     <Files>
-      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="19" Column="53" />
-      <File FileName="Store.Reports.Formats/packages.config" Line="6" Column="67" />
+      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="6" Column="36" />
+      <File FileName="Store.Reports.Formats/test/ExcelSpec.fs" Line="6" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -13,10 +13,12 @@
               <Node name="src" expanded="True" />
             </Node>
             <Node name="Store.Reports.Formats" expanded="True">
-              <Node name="References" expanded="True" />
-              <Node name="src" expanded="True">
-                <Node name="Excel.fs" selected="True" />
+              <Node name="References" expanded="True">
+                <Node name="From Packages" expanded="True" />
               </Node>
+              <Node name="Packages" selected="True" />
+              <Node name="src" expanded="True" />
+              <Node name="test" expanded="True" />
             </Node>
             <Node name="Store.Storage.Pgsql" expanded="True" />
           </Node>
