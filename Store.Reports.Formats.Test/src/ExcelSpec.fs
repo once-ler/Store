@@ -1,4 +1,4 @@
-﻿namespace Store.Reports.Formats.Specs
+﻿namespace Store.Reports.Formats.Test
 
 open NUnit.Framework
 open FsUnit

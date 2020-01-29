@@ -17,3 +17,4 @@ Test.cs
 packages*/
 **/build
 **/.fake
+**/testbuild

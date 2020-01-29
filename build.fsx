@@ -1,9 +1,10 @@
 ﻿// include Fake libs
 // https://stackoverflow.com/questions/39726728/f-unit-test-projects-in-linux-with-mono-fake-nunit-3
 // https://stackoverflow.com/questions/41815649/f-how-to-setup-fake-project-that-can-use-fsunit
+// Running FAKE:
 // chmod a+x ../packages/FAKE.4.64.17/tools/FAKE.exe
-// ../packages/FAKE.4.64.17/tools/FAKE.exe build.fsx
-#r "../packages/FAKE.4.64.17/tools/FakeLib.dll"
+// ./packages/FAKE.4.64.17/tools/FAKE.exe build.fsx
+#r "./packages/FAKE.4.64.17/tools/FakeLib.dll"
 
 open System
 open Fake
@@ -15,7 +16,7 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Directories
 let buildDir  = "./build/"
-let testDir = "./output/"
+let testDir = "./testbuild/"
 
 // version info
 let version = "0.1"  // or retrieve from CI server
@@ -27,28 +28,25 @@ Target "Clean" (fun _ ->
 
 Target "Build" (fun _ ->
     //MSBuildDebug buildDir "Build" appReferences
-    // !! "/UnitTesting/*.fsproj"
-    !! "/*.fsproj"
+    !! "Store.Reports.Formats/*.fsproj"
     |> MSBuildRelease buildDir "Build"
     |> Log "AppBuild-Output: "
 )
 
-(*
 Target "BuildTest" (fun _ ->
-                    !! "test/NUnit.Test.MyTests/*.fsproj"
-                    |> MSBuildDebug testDir "Build"
-                    |> Log "TestBuild-Output: "
+    !! "Store.Reports.Formats.Test/*.fsproj"
+    |> MSBuildDebug testDir "Build"
+    |> Log "TestBuild-Output: "
 )
-*)
 
 Target "Test" (fun _ ->
-               !! (testDir + "/Store.Reports.Formats.Specs.dll")
-               |> NUnit3 (fun p ->
-                         { p with
-                               ToolPath = "../packages/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe"
-                               // DisableShadowCopy = true;
-                               // OutputFile = testDir + "TestResults.xml" 
-                               })
+     !! (testDir + "/Store.Reports.Formats.Test.dll")
+     |> NUnit3 (fun p ->
+         { p with
+             ToolPath = "./packages/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe"
+             // DisableShadowCopy = true;
+             // OutputFile = testDir + "TestResults.xml" 
+             })
 )
 
 let files includes = 
@@ -63,8 +61,8 @@ Target "Test2" (fun _ ->
            OutputFile = testDir + "TestResults.xml" })
 )
 
-Target "Default" (fun _ -> trace "Completed FAKE!!!")
+Target "Default" (fun _ -> trace "Completed FAKE.")
 
-"Clean" ==> "Build" ==> "Test" ==> "Default"
+"Clean" ==> "Build" ==> "BuildTest" ==> "Test" ==> "Default"
 
 RunTargetOrDefault "Default"

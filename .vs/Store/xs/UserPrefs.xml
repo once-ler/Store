@@ -1,20 +1,17 @@
-﻿<Properties>
+﻿<Properties StartupConfiguration="{4C6E06C5-EC20-4416-A214-78B701DF04DA}|Unit Tests">
   <MonoDevelop.Ide.ItemProperties.Store.Reports.Formats FirstBuild="True" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports.Formats/build.fsx">
+  <MonoDevelop.Ide.Workbench ActiveDocument="build.fsx">
     <Files>
-      <File FileName="Store.Reports.Formats/test/ExcelSpec.fs" Line="11" Column="29" />
-      <File FileName="Store.Reports.Formats/build.fsx" Line="71" Column="1" />
-      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="6" Column="1" />
+      <File FileName="Store.Reports.Formats/packages.config" Line="7" Column="3" />
+      <File FileName="build.fsx" Line="28" Column="25" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Store" expanded="True">
-            <Node name="Store.Reports.Formats" expanded="True">
-              <Node name="Packages" expanded="True" />
+            <Node name="Solution Items" expanded="True" />
+            <Node name="Store.Reports.Formats.Test" expanded="True" selected="True">
               <Node name="src" expanded="True" />
-              <Node name="test" expanded="True" />
-              <Node name="build.fsx" selected="True" />
             </Node>
           </Node>
         </State>
@@ -22,6 +19,7 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Store.Reports.Formats.Test FirstBuild="True" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
