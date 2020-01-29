@@ -3,6 +3,8 @@
 open NUnit.Framework
 open FsUnit
 
+open System
+open System.IO
 open System.Dynamic
 open FSharp.Interop.Dynamic
 
@@ -19,10 +21,11 @@ module ``Excel Tests`` =
     ]
 
   [<Test>]
-  let ``When List of objects``([<Values()>] input) =
+  let ``When List of objects``([<Values(1)>] input) =
 
     let excel = new Excel()
+    let fileName = "test-a.xslx"
+    use res = excel.listToWorkbook(listA, fileName)
 
-    let res = excel.export(listA, "file-a")
+    res.Length |> should greaterThan 0
 
-    1 |> should equal 1

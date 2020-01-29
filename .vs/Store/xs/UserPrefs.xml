@@ -1,16 +1,23 @@
 ﻿<Properties StartupConfiguration="{4C6E06C5-EC20-4416-A214-78B701DF04DA}|Unit Tests">
   <MonoDevelop.Ide.ItemProperties.Store.Reports.Formats FirstBuild="True" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="build.fsx">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports.Formats/src/Excel.fs">
     <Files>
+      <File FileName="Store.Reports.Formats.Test/src/ExcelSpec.fs" Line="32" Column="72" />
+      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="59" Column="5" />
       <File FileName="Store.Reports.Formats/packages.config" Line="7" Column="3" />
-      <File FileName="build.fsx" Line="28" Column="25" />
+      <File FileName="build.fsx" Line="14" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Store" expanded="True">
             <Node name="Solution Items" expanded="True" />
-            <Node name="Store.Reports.Formats.Test" expanded="True" selected="True">
+            <Node name="Store.Reports.Formats" expanded="True">
+              <Node name="src" expanded="True">
+                <Node name="Excel.fs" selected="True" />
+              </Node>
+            </Node>
+            <Node name="Store.Reports.Formats.Test" expanded="True">
               <Node name="src" expanded="True" />
             </Node>
           </Node>
