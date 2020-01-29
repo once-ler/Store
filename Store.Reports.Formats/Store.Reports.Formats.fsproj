@@ -83,6 +83,7 @@
     <None Include="packages.config" />
     <Compile Include="src\Excel.fs" />
     <Compile Include="test\ExcelSpec.fs" />
+    <None Include="build.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
