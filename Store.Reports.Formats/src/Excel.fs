@@ -3,6 +3,7 @@
 open NPOI.XSSF.UserModel
 open System
 open System.Collections.Generic
+open System.Collections.Generic.lin
 open Newtonsoft.Json
 open System.IO
 open System.Data
