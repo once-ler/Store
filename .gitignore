@@ -15,5 +15,3 @@ packages/FastMember*
 **/obj
 Test.cs
 packages*/
-**/build
-**/.fake
