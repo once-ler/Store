@@ -24,8 +24,8 @@ module ``Excel Tests`` =
   let ``When List of objects``([<Values(1)>] input) =
 
     let excel = new Excel()
-    let fileName = "test-a.xslx"
-    use res = excel.listToWorkbook(listA, fileName)
+    let sheetName = "Important Stuff"
+    use stream = excel.listToWorkbook(listA, sheetName)
 
-    res.Length |> should greaterThan 0
+    stream.Length |> should greaterThan 0
 
