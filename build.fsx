@@ -28,7 +28,10 @@ Target "Clean" (fun _ ->
 
 Target "Build" (fun _ ->
     //MSBuildDebug buildDir "Build" appReferences
-    !! "Store.Reports.Formats/*.fsproj"
+    !! "Store.*/**/*.fsproj"
+    ++ "Store.*/**/*.csproj"
+    -- "Store.*.Test/**/*.fsproj"
+    -- "Store.*.Test/**/*.csproj"
     |> MSBuildRelease buildDir "Build"
     |> Log "AppBuild-Output: "
 )
