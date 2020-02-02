@@ -19,3 +19,4 @@ packages*/
 **/.fake
 **/testbuild
 /*.xml
+**/.vs
