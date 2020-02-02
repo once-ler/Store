@@ -35,8 +35,9 @@ type Excel() =
   member private this.fileToMemoryStream(tmpFile: string): MemoryStream =
     let ms = new MemoryStream()
     try
-      use fs1 = new FileStream(tmpFile, FileMode.Open, FileAccess.Read)
-      fs1.CopyTo(ms)
+      use fs = new FileStream(tmpFile, FileMode.Open, FileAccess.Read)
+      fs.CopyTo(ms)
+      ms.Position <- 0L
     with
       | e -> printfn "%s" e.Message
 
