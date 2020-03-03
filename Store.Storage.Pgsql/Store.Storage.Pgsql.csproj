@@ -38,12 +38,6 @@
       <HintPath>..\packages\Npgsql.3.1.8\lib\net45\Npgsql.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Store.Models">
-      <HintPath>..\Store.Models\bin\Debug\Store.Models.dll</HintPath>
-    </Reference>
-    <Reference Include="Store.Storage">
-      <HintPath>..\Store.Storage\bin\Debug\Store.Storage.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -60,6 +54,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Store.Models\Store.Models.csproj">
+      <Project>{3FA3D494-3C1E-4A45-B928-669A64683C70}</Project>
+      <Name>Store.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Store.Storage\Store.Storage.csproj">
+      <Project>{ED21115B-8E08-4CC1-8761-34842174BE8A}</Project>
+      <Name>Store.Storage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
