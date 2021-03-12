@@ -1,22 +1,20 @@
-﻿<Properties StartupConfiguration="{4C6E06C5-EC20-4416-A214-78B701DF04DA}|Unit Tests">
+﻿<Properties>
   <MonoDevelop.Ide.ItemProperties.Store.Reports.Formats PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="build.fsx">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports/src/ReportFactory.cs">
     <Files>
-      <File FileName="build.fsx" Line="68" Column="1" />
-      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="42" Column="30" />
+      <File FileName="Store.Reports.Formats.Test/src/ExcelSpec.fs" Line="1" Column="1" />
+      <File FileName="Store.Reports/src/Extensions.cs" Line="1" Column="1" />
+      <File FileName="Store.Reports/src/ReportFactory.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Store" expanded="True">
             <Node name="Solution Items" expanded="True" />
-            <Node name="Store.Models" selected="True" />
-            <Node name="Store.Reports.Formats" expanded="True" />
-            <Node name="Store.Reports.Formats.Test" expanded="True">
-              <Node name="src" expanded="True" />
-            </Node>
-            <Node name="Store.Storage.Pgsql" expanded="True">
-              <Node name="References" expanded="True" />
+            <Node name="Store.Reports" expanded="True">
+              <Node name="src" expanded="True">
+                <Node name="ReportFactory.cs" selected="True" />
+              </Node>
             </Node>
           </Node>
         </State>

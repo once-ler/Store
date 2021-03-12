@@ -9,7 +9,8 @@ namespace Store.Reports {
     public enum ContentFormat {
       HTML,
       JSON,
-      XML
+      XML,
+      EXCEL
     }
 
     public ReportType(ContentFormat contentType) {
