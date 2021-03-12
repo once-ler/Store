@@ -60,9 +60,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
-    </Reference>
     <Reference Include="FsUnit.NUnit">
       <HintPath>..\packages\FsUnit.3.8.0\lib\net46\FsUnit.NUnit.dll</HintPath>
     </Reference>
@@ -76,6 +73,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="FSharp.Interop.Dynamic">
       <HintPath>..\packages\FSharp.Interop.Dynamic.5.0.1.268\lib\net45\FSharp.Interop.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.4.3.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
