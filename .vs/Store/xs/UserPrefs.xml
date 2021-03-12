@@ -1,20 +1,31 @@
 ﻿<Properties>
   <MonoDevelop.Ide.ItemProperties.Store.Reports.Formats PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports/src/ReportFactory.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="build.fsx">
     <Files>
-      <File FileName="Store.Reports.Formats.Test/src/ExcelSpec.fs" Line="1" Column="1" />
+      <File FileName="Store.Reports.Formats.Test/src/ExcelSpec.fs" Line="14" Column="3" />
       <File FileName="Store.Reports/src/Extensions.cs" Line="1" Column="1" />
-      <File FileName="Store.Reports/src/ReportFactory.cs" Line="1" Column="1" />
+      <File FileName="Store.Reports/src/ReportFactory.cs" Line="19" Column="5" />
+      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="42" Column="30" />
+      <File FileName="Store.Reports.Formats.Test/packages.config" Line="6" Column="87" />
+      <File FileName="build.fsx" Line="6" Column="52" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Store" expanded="True">
-            <Node name="Solution Items" expanded="True" />
-            <Node name="Store.Reports" expanded="True">
-              <Node name="src" expanded="True">
-                <Node name="ReportFactory.cs" selected="True" />
+            <Node name="Solution Items" expanded="True">
+              <Node name="/apps/Store/build.fsx" selected="True" />
+            </Node>
+            <Node name="Store.Reports.Formats" expanded="True">
+              <Node name="References" expanded="True">
+                <Node name="From Packages" expanded="True" />
               </Node>
+            </Node>
+            <Node name="Store.Reports.Formats.Test" expanded="True">
+              <Node name="References" expanded="True">
+                <Node name="From Packages" expanded="True" />
+              </Node>
+              <Node name="src" expanded="True" />
             </Node>
           </Node>
         </State>
