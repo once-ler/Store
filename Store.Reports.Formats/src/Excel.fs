@@ -38,6 +38,7 @@ type Excel() =
       use fs = new FileStream(tmpFile, FileMode.Open, FileAccess.Read)
       fs.CopyTo(ms)
       ms.Position <- 0L
+      fs.Close()
     with
       | e -> printfn "%s" e.Message
 
