@@ -65,7 +65,7 @@ type Excel() =
     let gid = Guid.NewGuid().ToString()
 
     // POI implicitly closes stream after writing.  So we first write to disk, then read it back.
-    let tmpFile = Environment.CurrentDirectory + "/" + gid
+    let tmpFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, gid)
 
     this.workbooktoFileStream(wb, tmpFile)
     let ms = this.fileToMemoryStream(tmpFile)

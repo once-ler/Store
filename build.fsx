@@ -42,13 +42,19 @@ Target "BuildTest" (fun _ ->
     |> Log "TestBuild-Output: "
 )
 
+// Build
+// /usr/bin/msbuild  /apps/Store/Store.Reports.Formats.Test/Store.Reports.Formats.Test.fsproj /t:Build    /p:RestorePackages="False" /p:OutputPath="/apps/Store/testbuild" /p:Configuration="Debug" /logger:Fake.MsBuildLogger+ErrorLogger,"/apps/Store/packages/FAKE.4.64.17/tools/FakeLib.dll"
+
+// Test
+// ./packages/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe "--noheader" "--result=./testbuild/TestResults.xml" "/apps/Store/testbuild/Store.Reports.Formats.Test.dll"
+
 Target "Test" (fun _ ->
      !! (testDir + "/Store.Reports.Formats.Test.dll")
      |> NUnit3 (fun p ->
          { p with
              ToolPath = "./packages/NUnit.ConsoleRunner.3.10.0/tools/nunit3-console.exe"
-             // DisableShadowCopy = true;
-             // OutputFile = testDir + "TestResults.xml" 
+             ShadowCopy = false;
+             ResultSpecs = [testDir + "TestResults.xml"]
              })
 )
 

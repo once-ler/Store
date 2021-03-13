@@ -25,7 +25,11 @@ module ``Excel Tests`` =
 
     let excel = new Excel()
     let sheetName = "Important Stuff"
+    let tmpFile = "testbuild/testout.xlsx"
     use stream = excel.listToWorkbook(listA, sheetName)
+    use fs = new FileStream(tmpFile, FileMode.Create, FileAccess.Write)
+    stream.CopyTo(fs)
 
+    printfn "%A" listA
     stream.Length |> should greaterThan 0
 
