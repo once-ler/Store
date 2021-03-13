@@ -86,6 +86,18 @@
       <Project>{4C6E06C5-EC20-4416-A214-78B701DF04DA}</Project>
       <Name>Store.Reports.Formats</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Store.Storage.SqlServer\Store.Storage.SqlServer.csproj">
+      <Project>{D66963F9-EF98-4A72-AA51-5758C7D7011B}</Project>
+      <Name>Store.Storage.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Store.Storage\Store.Storage.csproj">
+      <Project>{ED21115B-8E08-4CC1-8761-34842174BE8A}</Project>
+      <Name>Store.Storage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Store.Models\Store.Models.csproj">
+      <Project>{3FA3D494-3C1E-4A45-B928-669A64683C70}</Project>
+      <Name>Store.Models</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />
 </Project>
