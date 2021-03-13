@@ -1,26 +1,29 @@
 ﻿<Properties StartupConfiguration="{4C6E06C5-EC20-4416-A214-78B701DF04DA}|Unit Tests">
   <MonoDevelop.Ide.ItemProperties.Store.Reports.Formats PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports.Formats.Test/src/ExcelSpec.fs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Store.Reports.Formats/packages.config">
     <Files>
-      <File FileName="Store.Reports.Formats.Test/src/ExcelSpec.fs" Line="40" Column="7" />
+      <File FileName="Store.Reports.Formats.Test/src/ExcelSpec.fs" Line="6" Column="1" />
       <File FileName="Store.Reports/src/Extensions.cs" Line="1" Column="1" />
       <File FileName="Store.Reports/src/ReportFactory.cs" Line="19" Column="1" />
-      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="75" Column="17" />
+      <File FileName="Store.Reports.Formats/src/Excel.fs" Line="42" Column="9" />
       <File FileName="build.fsx" Line="6" Column="52" />
       <File FileName="Store.Storage/src/BaseClient.cs" Line="35" Column="75" />
       <File FileName="Store.Storage/src/Data/CommandRunner.cs" Line="92" Column="42" />
       <File FileName="Store.Storage/src/Data/Extensions.cs" Line="84" Column="51" />
+      <File FileName="Store.Reports.Formats/packages.config" Line="6" Column="36" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Store" expanded="True">
             <Node name="Solution Items" expanded="True" />
+            <Node name="Store.Reports.Formats" expanded="True">
+              <Node name="src" expanded="True" />
+              <Node name="packages.config" selected="True" />
+            </Node>
             <Node name="Store.Reports.Formats.Test" expanded="True">
               <Node name="References" expanded="True" />
-              <Node name="src" expanded="True">
-                <Node name="ExcelSpec.fs" selected="True" />
-              </Node>
+              <Node name="src" expanded="True" />
             </Node>
             <Node name="Store.Storage.Pgsql.Test" expanded="True" />
             <Node name="Store.Storage.SqlServer" expanded="True" />
