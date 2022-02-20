@@ -54,7 +54,7 @@
       <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="FsUnit.NUnit">
-      <HintPath>..\packages\FsUnit.3.8.0\lib\net46\FsUnit.NUnit.dll</HintPath>
+      <HintPath>..\packages\FsUnit.3.0.0\lib\net45\FsUnit.NUnit.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="BouncyCastle.Crypto">
