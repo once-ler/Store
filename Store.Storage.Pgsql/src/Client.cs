@@ -14,7 +14,19 @@ using Store.Storage.Data;
 
 namespace Store.Storage {
   namespace Pgsql {
-      
+
+    /// <summary>
+    /// When you really just want to use the BaseClient functions like runDynamicSql().
+    /// </summary>
+    public class Client : BasicClient
+    {
+      public Client(DBContext _dbContext) : base(_dbContext)
+      {
+        var fac = new Factory<NpgsqlConnection>();
+        dbConnection = fac.Get(_dbContext);
+      }
+    }
+
     public class Client<T> : Store.Storage.BaseClient<T>, IStore<T> where T : class, IModel, new() {
 
       public Client(DBContext _dbContext) : base(_dbContext) {
